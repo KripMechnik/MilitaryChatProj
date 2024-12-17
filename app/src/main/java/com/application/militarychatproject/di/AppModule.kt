@@ -13,6 +13,12 @@ import com.application.militarychatproject.data.remote.WebSocketRequests
 import com.application.militarychatproject.data.remote.network.AuthRequest
 import com.application.militarychatproject.data.remote.network.BaseRequest
 import com.application.militarychatproject.data.remote.network.WebSocketClient
+import com.application.militarychatproject.data.repository.AuthorizationRepoImpl
+import com.application.militarychatproject.data.repository.RefreshTokenRepoImpl
+import com.application.militarychatproject.domain.repository.AuthorizationRepository
+import com.application.militarychatproject.domain.repository.RefreshTokenRepository
+import com.application.militarychatproject.domain.usecases.authorization.IsAuthorizedUseCase
+import com.application.militarychatproject.domain.usecases.authorization.SignInUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -169,4 +175,20 @@ object AppModule {
     @Provides
     @Singleton
     fun providesWebSocketListener(@Named("WebSocketClient") client: HttpClient) = WebSocketClient(client)
+
+    @Provides
+    @Singleton
+    fun provideAuthRepoImpl(requests: AuthorizationRequests) : AuthorizationRepository = AuthorizationRepoImpl(requests)
+
+    @Provides
+    @Singleton
+    fun provideRefreshTokenRepoImpl(request: RefreshTokenRequest) : RefreshTokenRepository = RefreshTokenRepoImpl(request)
+
+    @Provides
+    @Singleton
+    fun provideIsAuthorizedUseCase(userData: UserData, refreshTokenRepo: RefreshTokenRepository) = IsAuthorizedUseCase(userData, refreshTokenRepo)
+
+    @Provides
+    @Singleton
+    fun provideSignInUseCase(authorizationRepository: AuthorizationRepository) = SignInUseCase(authorizationRepository)
 }

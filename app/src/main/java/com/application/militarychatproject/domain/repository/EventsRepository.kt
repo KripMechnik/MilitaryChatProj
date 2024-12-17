@@ -8,7 +8,7 @@ interface EventsRepository {
 
     suspend fun createEvent(newEvent: NewEventEntity): ApiResponse<EventDTO>
 
-    suspend fun deleteEvent(id: String): ApiResponse<Any>
+    suspend fun deleteEvent(id: String): ApiResponse<Unit>
 
     suspend fun getAllEvents(): ApiResponse<List<EventDTO>>
 

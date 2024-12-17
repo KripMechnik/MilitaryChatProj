@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">MilitaryChatProject</string>
+    <string name="to_register">Зарегистрироваться</string>
+    <string name="change_background">Поменять фон</string>
+    <string name="options">Настройки</string>
+    <string name="calendary">Календарь</string>
+    <string name="friends">Друзья</string>
+    <string name="menu">Меню</string>
+    <string name="create_acc">Создать аккаунт</string>
+    <string name="nick">Ник</string>
+    <string name="e_mail">E-mail</string>
+    <string name="password">Пароль</string>
+    <string name="already_have_acc">Уже есть аккаунт</string>
+    <string name="enter_acc">Войти \nв аккаунт</string>
+    <string name="enter">Войти</string>
+    <string name="forget_password">Забыли пароль?</string>
 </resources>

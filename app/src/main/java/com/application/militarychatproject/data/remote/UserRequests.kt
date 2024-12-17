@@ -26,7 +26,7 @@ class UserRequests @Inject constructor(
     }
 
     //token -> yes
-    suspend fun deletePhotoRequest() : ApiResponse<Any> {
+    suspend fun deletePhotoRequest() : ApiResponse<Unit> {
         return authRequest(
             method = HttpMethod.Delete,
             path = basePath + "avatar"
@@ -71,7 +71,7 @@ class UserRequests @Inject constructor(
     suspend fun savePhotoRequest(){}
 
     //token -> yes
-    suspend fun setStatusOfflineRequest() : ApiResponse<Any>{
+    suspend fun setStatusOfflineRequest() : ApiResponse<Unit>{
         return authRequest(
             method = HttpMethod.Put,
             path = basePath + "set-status-offline"
@@ -79,7 +79,7 @@ class UserRequests @Inject constructor(
     }
 
     //token -> yes
-    suspend fun setStatusOnlineRequest(): ApiResponse<Any>{
+    suspend fun setStatusOnlineRequest(): ApiResponse<Unit>{
         return authRequest(
             method = HttpMethod.Put,
             path = basePath + "set-status-online"

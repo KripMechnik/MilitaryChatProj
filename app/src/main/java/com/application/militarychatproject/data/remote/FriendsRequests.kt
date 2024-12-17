@@ -33,7 +33,7 @@ class FriendsRequests @Inject constructor(
     //token -> yes
     suspend fun deleteFriendRequest(
         friendId: String
-    ): ApiResponse<Any>{
+    ): ApiResponse<Unit>{
         return authRequest(
             method = HttpMethod.Delete,
             params = StringValues.build {
@@ -71,7 +71,7 @@ class FriendsRequests @Inject constructor(
     //token -> yes
     suspend fun sendFriendRequest(
         receiverId: String
-    ): ApiResponse<Any>{
+    ): ApiResponse<Unit>{
         return authRequest(
             method = HttpMethod.Post,
             params = StringValues.build {

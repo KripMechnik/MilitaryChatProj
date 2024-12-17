@@ -3,9 +3,9 @@ package com.application.militarychatproject.presentation.splash
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.application.militarychatproject.common.UserData
-import com.application.militarychatproject.presentation.profile.view.PROFILE_SCREEN_ROUTE
-import com.application.militarychatproject.presentation.registration.first.view.REGISTRATION_SCREEN_ROUTE
+import com.application.militarychatproject.common.Constants.ADD_SOLDIER_SCREEN_ROUTE
+import com.application.militarychatproject.common.Constants.HOME_SCREEN_ROUTE
+import com.application.militarychatproject.domain.usecases.authorization.IsAuthorizedUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashScreenViewModel @Inject constructor(
-    private val userData: UserData
+    private val isAuthorizedUseCase: IsAuthorizedUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<SplashScreenState>(SplashScreenState.Idle)
@@ -25,13 +25,13 @@ class SplashScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            if (userData.checkAuthorized()) {
+            if (isAuthorizedUseCase()) {
                 _state.value = SplashScreenState.Authorized
-                _route.value = PROFILE_SCREEN_ROUTE
+                _route.value = HOME_SCREEN_ROUTE
                 Log.i("auth", "yes")
             } else {
-                _state.value = SplashScreenState.Unauthorized
-                _route.value = REGISTRATION_SCREEN_ROUTE
+                _state.value = SplashScreenState.UnauthorizedNotAdded
+                _route.value = HOME_SCREEN_ROUTE
                 Log.i("auth", "no")
             }
         }
@@ -42,5 +42,6 @@ class SplashScreenViewModel @Inject constructor(
 sealed class SplashScreenState() {
     data object Idle: SplashScreenState()
     data object Authorized: SplashScreenState()
-    data object Unauthorized: SplashScreenState()
+    data object UnauthorizedAdded: SplashScreenState()
+    data object UnauthorizedNotAdded: SplashScreenState()
 }

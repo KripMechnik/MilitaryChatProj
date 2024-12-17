@@ -39,7 +39,7 @@ class AuthorizationRequests @Inject constructor(
     }
 
     //token -> yes
-    suspend fun logoutRequest() : ApiResponse<Any> {
+    suspend fun logoutRequest() : ApiResponse<Unit> {
         return authRequest(
             method = HttpMethod.Post,
             path = basePath + "log-out"
@@ -47,7 +47,7 @@ class AuthorizationRequests @Inject constructor(
     }
 
     //token -> yes
-    suspend fun authRequest() : ApiResponse<Any>{
+    suspend fun deleteRequest() : ApiResponse<Unit>{
         return baseRequest(
             method = HttpMethod.Delete,
             path = basePath

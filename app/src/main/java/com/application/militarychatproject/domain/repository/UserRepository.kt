@@ -7,7 +7,7 @@ import com.application.militarychatproject.data.remote.network.ApiResponse
 
 interface UserRepository {
 
-    suspend fun deletePhoto(): ApiResponse<Any>
+    suspend fun deletePhoto(): ApiResponse<Unit>
 
     suspend fun getPhoto(): ApiResponse<PhotoDTO>
 
@@ -17,10 +17,10 @@ interface UserRepository {
 
     suspend fun getUserById(id: String): ApiResponse<UserDTO>
 
-    suspend fun savePhoto(): ApiResponse<Any>
+    suspend fun savePhoto(): ApiResponse<Unit>
 
-    suspend fun setStatusOnline(): ApiResponse<Any>
+    suspend fun setStatusOnline(): ApiResponse<Unit>
 
-    suspend fun setStatusOffline(): ApiResponse<Any>
+    suspend fun setStatusOffline(): ApiResponse<Unit>
 
 }

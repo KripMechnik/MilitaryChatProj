@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 
 class UserData @Inject constructor (
-    context: Context
+    @ApplicationContext private val context: Context
 ) {
 
     private val sharedPrefs = context.getSharedPreferences("user_data", Context.MODE_PRIVATE)

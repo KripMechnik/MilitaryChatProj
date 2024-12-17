@@ -7,18 +7,18 @@ import com.application.militarychatproject.domain.entity.send.UpdatedMessageEnti
 
 interface MessageRepository {
 
-    suspend fun deleteChat(chatId: String): ApiResponse<Any>
+    suspend fun deleteChat(chatId: String): ApiResponse<Unit>
 
-    suspend fun deleteMessage(messageId: String): ApiResponse<Any>
+    suspend fun deleteMessage(messageId: String): ApiResponse<Unit>
 
     suspend fun getListOfChats(): ApiResponse<List<ChatDTO>>
 
     suspend fun getListOfMessages(chatId: String): ApiResponse<List<MessageDTO>>
 
-    suspend fun readMessage(chatId: String): ApiResponse<Any>
+    suspend fun readMessage(chatId: String): ApiResponse<Unit>
 
     suspend fun sendMessage(chatId: String): ApiResponse<MessageDTO>
 
-    suspend fun updateMessage(messageId: String, updatedMessage: UpdatedMessageEntity): ApiResponse<Any>
+    suspend fun updateMessage(messageId: String, updatedMessage: UpdatedMessageEntity): ApiResponse<Unit>
 
 }

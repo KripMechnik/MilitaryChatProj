@@ -11,10 +11,8 @@ interface AuthorizationRepository {
 
     suspend fun signIn(signedInUser: SignedInUserEntity) : ApiResponse<TokenDTO>
 
-    suspend fun logout() : ApiResponse<Any>
+    suspend fun logout() : ApiResponse<Unit>
 
-    suspend fun deleteAccount() : ApiResponse<Any>
-
-    suspend fun refreshToken() : ApiResponse<TokenDTO>
+    suspend fun deleteAccount() : ApiResponse<Unit>
 
 }

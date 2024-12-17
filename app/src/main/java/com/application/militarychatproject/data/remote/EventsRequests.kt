@@ -28,7 +28,7 @@ class EventsRequests @Inject constructor(
     //token -> yes
     suspend fun deleteEventRequest(
         id: String
-    ) : ApiResponse<Any> {
+    ) : ApiResponse<Unit> {
         return authRequest(
             path = basePath,
             params = StringValues.build {

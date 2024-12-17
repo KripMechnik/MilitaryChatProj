@@ -10,7 +10,7 @@ interface FriendsRepository {
 
     suspend fun acceptFriend(senderId: String): ApiResponse<AcceptedFriendDTO>
 
-    suspend fun deleteFriend(friendId: String): ApiResponse<Any>
+    suspend fun deleteFriend(friendId: String): ApiResponse<Unit>
 
     suspend fun getFriends(): ApiResponse<List<FriendDTO>>
 
@@ -18,6 +18,6 @@ interface FriendsRepository {
 
     suspend fun getListOfSandedRequests(): ApiResponse<List<ReceiverDTO>>
 
-    suspend fun sendFriendRequest(receiverId: String): ApiResponse<Any>
+    suspend fun sendFriendRequest(receiverId: String): ApiResponse<Unit>
 
 }

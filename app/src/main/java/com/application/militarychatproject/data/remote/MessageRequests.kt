@@ -19,7 +19,7 @@ class MessageRequests @Inject constructor(
     //token -> yes
     suspend fun deleteChatRequest(
         chatId: String
-    ) : ApiResponse<Any> {
+    ) : ApiResponse<Unit> {
         return authRequest(
             path = basePath + "delete-chat/",
             params = StringValues.build {
@@ -32,7 +32,7 @@ class MessageRequests @Inject constructor(
     //token -> yes
     suspend fun deleteMessageRequest(
         messageId: String
-    ) : ApiResponse<Any>{
+    ) : ApiResponse<Unit>{
         return authRequest(
             path = basePath + "delete-message/",
             params = StringValues.build {
@@ -66,7 +66,7 @@ class MessageRequests @Inject constructor(
     //token -> yes
     suspend fun readMessageRequest(
         chatId: String
-    ) : ApiResponse<Any>{
+    ) : ApiResponse<Unit>{
         return authRequest(
             path = basePath + "update-all-unread-messages/",
             params = StringValues.build {
@@ -93,7 +93,7 @@ class MessageRequests @Inject constructor(
     suspend fun updateMessageRequest(
         messageId: String,
         updatedMessage: UpdatedMessageEntity
-    ) : ApiResponse<Any>{
+    ) : ApiResponse<Unit>{
         return authRequest(
             path = basePath + "edit-message/",
             params = StringValues.build {

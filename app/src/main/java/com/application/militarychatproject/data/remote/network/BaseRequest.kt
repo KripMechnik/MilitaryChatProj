@@ -1,5 +1,6 @@
 package com.application.militarychatproject.data.remote.network
 
+import android.util.Log
 import com.application.militarychatproject.common.Constants
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -42,7 +43,7 @@ class BaseRequest @Inject constructor(
             this.method = method
             this.host = Constants.BASE_HOST
             url {
-                protocol = URLProtocol.HTTPS
+                protocol = URLProtocol.HTTP
                 path(path)
                 parameters.appendAll(params)
             }
@@ -50,7 +51,9 @@ class BaseRequest @Inject constructor(
                 appendAll(headers)
             }
             contentType(ContentType.Application.Json)
-            body?.let { setBody(it) }
+            body?.let {
+                setBody(it)
+            }
         }
 
         if (response.status.isSuccess()){

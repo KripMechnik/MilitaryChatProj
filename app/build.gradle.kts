@@ -88,4 +88,6 @@ dependencies {
 
     //splash
     implementation(libs.androidx.core.splashscreen)
+
+    implementation("dev.chrisbanes.haze:haze-jetpack-compose:0.4.1")
 }
