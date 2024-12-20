@@ -58,7 +58,7 @@ class BaseRequest @Inject constructor(
 
         if (response.status.isSuccess()){
             val stringBody = response.body<String>()
-            if (stringBody.isNotBlank()) ApiResponse.Success(data = json.decodeFromString<T>(stringBody))
+            if (stringBody.startsWith("{")) ApiResponse.Success(data = json.decodeFromString<T>(stringBody))
             else ApiResponse.Success()
         } else {
             ApiResponse.Error(

@@ -5,6 +5,8 @@ import com.application.militarychatproject.data.remote.network.ApiResponse
 import com.application.militarychatproject.data.remote.network.AuthRequest
 import com.application.militarychatproject.data.remote.network.BaseRequest
 import com.application.militarychatproject.domain.entity.send.NewUserEntity
+import com.application.militarychatproject.domain.entity.send.GetOtpBodyEntity
+import com.application.militarychatproject.domain.entity.send.SendOtpBodyEntity
 import com.application.militarychatproject.domain.entity.send.SignedInUserEntity
 import io.ktor.http.HttpMethod
 import javax.inject.Inject
@@ -19,7 +21,7 @@ class AuthorizationRequests @Inject constructor(
     //token -> no
     suspend fun registrationRequest(
         newUser: NewUserEntity
-    ) : ApiResponse<TokenDTO> {
+    ) : ApiResponse<Unit> {
         return baseRequest(
             method = HttpMethod.Post,
             path = basePath + "sign-up",
@@ -51,6 +53,27 @@ class AuthorizationRequests @Inject constructor(
         return baseRequest(
             method = HttpMethod.Delete,
             path = basePath
+        )
+    }
+
+    //token -> no
+    suspend fun getOtpRequest(
+        otpBody: GetOtpBodyEntity
+    ) : ApiResponse<Unit> {
+        return baseRequest(
+            method = HttpMethod.Post,
+            path = basePath + "send-otp-verification",
+            body = otpBody
+        )
+    }
+
+    suspend fun sendOtpRequest(
+        otpBody: SendOtpBodyEntity
+    ) : ApiResponse<TokenDTO> {
+        return baseRequest(
+            method = HttpMethod.Post,
+            path = basePath + "verify-email",
+            body = otpBody
         )
     }
 

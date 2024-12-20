@@ -1,6 +1,5 @@
 package com.application.militarychatproject.presentation.presets
 
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -48,7 +48,10 @@ fun ButtonPreset(
 fun InputPreset(
     modifier: Modifier = Modifier,
     label: String,
-    state: MutableState<String>
+    state: MutableState<String>,
+    isError: Boolean = false,
+    errorText: String = "",
+    visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
     OutlinedTextField(
         modifier = modifier
@@ -57,6 +60,18 @@ fun InputPreset(
         value = state.value,
         onValueChange = {
             state.value = it
+        },
+        isError = isError,
+        visualTransformation = visualTransformation,
+        supportingText = {
+            if (isError) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = errorText,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
         },
         label = {
             Text(text = label, style = MaterialTheme.typography.labelMedium)

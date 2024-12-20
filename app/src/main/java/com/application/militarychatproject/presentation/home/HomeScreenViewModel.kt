@@ -1,9 +1,8 @@
 package com.application.militarychatproject.presentation.home
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.application.militarychatproject.domain.usecases.authorization.GetSoldierDataUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.time.Duration
@@ -14,7 +13,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeScreenViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    private val getSoldierDataUseCase: GetSoldierDataUseCase
 ) : ViewModel() {
 
 
@@ -24,24 +23,16 @@ class HomeScreenViewModel @Inject constructor(
     private var _state = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> get() = _state
 
-    private val sharedPrefs = context.getSharedPreferences("dates", Context.MODE_PRIVATE)
-
     init {
-        getName()
-        getDates()
+        getSoldierData()
     }
 
-    private fun getName(){
-        val name = sharedPrefs.getString("name", "")
-        _state.value = HomeState(name = name)
-    }
-
-    private fun getDates(){
-        val dateStart = sharedPrefs.getString("start", "") + " 00:00:00"
-        val dateEnd = sharedPrefs.getString("end", "") + " 00:00:00"
+    private fun getSoldierData(){
+        val data = getSoldierDataUseCase()
+        _state.value = HomeState(name = data[0])
         val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
-        val dateEndAsDate = LocalDateTime.parse(dateEnd, formatter)
-        val dateStartAsDate = LocalDateTime.parse(dateStart, formatter)
+        val dateEndAsDate = LocalDateTime.parse(data[2], formatter)
+        val dateStartAsDate = LocalDateTime.parse(data[1], formatter)
         _state.value = _state.value.copy(
             dateStart = dateStartAsDate,
             dateEnd = dateEndAsDate

@@ -12,4 +12,5 @@ object Constants {
     const val RESET_PASSWORD_SCREEN_ROUTE = "reset_password"
     const val ENTER_CODE_SCREEN_ROUTE = "enter_code"
     const val CONFIRM_PASSWORD_SCREEN_ROUTE = "confirm_password"
+    const val PROFILE_SCREEN_ROUTE = "profile"
 }

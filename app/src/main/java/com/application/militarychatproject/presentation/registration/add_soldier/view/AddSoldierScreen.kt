@@ -16,12 +16,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.application.militarychatproject.presentation.presets.ButtonPreset
 import com.application.militarychatproject.presentation.presets.InputPreset
-import com.application.militarychatproject.presentation.registration.add_soldier.AddSoldierPresenter
+import com.application.militarychatproject.presentation.registration.add_soldier.AddSoldierScreenPresenter
 import com.application.militarychatproject.ui.theme.MilitaryChatProjectTheme
 
 @Composable
 fun AddSoldierScreen(
-    presenter: AddSoldierPresenter
+    presenter: AddSoldierScreenPresenter
 ) {
 
     val dateStart = remember {
@@ -111,7 +111,7 @@ fun AddSoldierScreen(
 @Composable
 fun AddSoldierScreenPreview() {
 
-    val presenter = object : AddSoldierPresenter{
+    val presenter = object : AddSoldierScreenPresenter{
         override fun navigateToHome() {
 
         }

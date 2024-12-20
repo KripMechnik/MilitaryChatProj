@@ -1,8 +1,6 @@
 package com.application.militarychatproject.presentation.registration.add_soldier
 
-import kotlinx.coroutines.flow.MutableStateFlow
-
-interface AddSoldierPresenter {
+interface AddSoldierScreenPresenter {
 
     fun navigateToHome()
 

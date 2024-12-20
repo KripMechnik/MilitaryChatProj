@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -63,8 +62,10 @@ import com.application.militarychatproject.presentation.home.view.home
 import com.application.militarychatproject.presentation.login.view.login
 import com.application.militarychatproject.presentation.menu.view.menu
 import com.application.militarychatproject.presentation.messanger.view.allChats
+import com.application.militarychatproject.presentation.profile.view.profile
 import com.application.militarychatproject.presentation.registration.registration.view.registration
 import com.application.militarychatproject.presentation.registration.add_soldier.view.addSoldier
+import com.application.militarychatproject.presentation.registration.otp.view.otp
 import com.application.militarychatproject.presentation.splash.SplashScreenState
 import com.application.militarychatproject.presentation.splash.SplashScreenViewModel
 import com.application.militarychatproject.ui.theme.MilitaryChatProjectTheme
@@ -108,9 +109,12 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+
+
         setContent {
             val navController = rememberNavController()
             val route by viewModel.route.collectAsState()
+            val state by viewModel.state.collectAsState()
             val items = listOf(
                 BottomNavigationItem(title = "Главная", selectedIcon = Icons.Filled.Home, unselectedIcon = Icons.Outlined.Home, route = HOME_SCREEN_ROUTE),
                 BottomNavigationItem(title = "Сообщения", selectedIcon = Icons.Filled.Email, unselectedIcon = Icons.Outlined.MailOutline, route = "messages"),
@@ -235,6 +239,8 @@ class MainActivity : ComponentActivity() {
                             registration(navController)
                             addSoldier(navController)
                             login(navController)
+                            otp(navController)
+                            profile(navController)
                         }
                     }
                 }

@@ -5,20 +5,9 @@ import com.application.militarychatproject.domain.repository.RefreshTokenReposit
 import javax.inject.Inject
 
 class IsAuthorizedUseCase @Inject constructor(
-    private val userData: UserData,
-    private val refreshTokenRepository: RefreshTokenRepository
+    private val userData: UserData
 ) {
-    suspend operator fun invoke() : Boolean {
-        if (userData.checkAuthorized()) {
-            val response = refreshTokenRepository.refreshToken(userData.token.value.refreshToken)
-            response.data?.let {
-                apply {
-                    userData.setToken(it.accessToken, it.refreshToken, it.accessTokenExpiresAt, it.refreshTokenExpiresAt)
-                }
-            }
-            return true
-        } else {
-            return false
-        }
+    operator fun invoke() : Boolean {
+        return userData.checkAuthorized()
     }
 }

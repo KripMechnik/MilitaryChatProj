@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.application.militarychatproject.common.Constants.ADD_SOLDIER_SCREEN_ROUTE
 import com.application.militarychatproject.common.Constants.HOME_SCREEN_ROUTE
+import com.application.militarychatproject.domain.usecases.authorization.IsAddedSoldierUseCase
 import com.application.militarychatproject.domain.usecases.authorization.IsAuthorizedUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SplashScreenViewModel @Inject constructor(
-    private val isAuthorizedUseCase: IsAuthorizedUseCase
+    private val isAuthorizedUseCase: IsAuthorizedUseCase,
+    private val isAddedSoldierUseCase: IsAddedSoldierUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<SplashScreenState>(SplashScreenState.Idle)
@@ -25,13 +27,13 @@ class SplashScreenViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            if (isAuthorizedUseCase()) {
-                _state.value = SplashScreenState.Authorized
+            if (isAuthorizedUseCase() || isAddedSoldierUseCase()) {
                 _route.value = HOME_SCREEN_ROUTE
+                _state.value = SplashScreenState.Authorized
                 Log.i("auth", "yes")
             } else {
-                _state.value = SplashScreenState.UnauthorizedNotAdded
-                _route.value = HOME_SCREEN_ROUTE
+                _route.value = ADD_SOLDIER_SCREEN_ROUTE
+                _state.value = SplashScreenState.Unauthorized
                 Log.i("auth", "no")
             }
         }
@@ -42,6 +44,5 @@ class SplashScreenViewModel @Inject constructor(
 sealed class SplashScreenState() {
     data object Idle: SplashScreenState()
     data object Authorized: SplashScreenState()
-    data object UnauthorizedAdded: SplashScreenState()
-    data object UnauthorizedNotAdded: SplashScreenState()
+    data object Unauthorized: SplashScreenState()
 }

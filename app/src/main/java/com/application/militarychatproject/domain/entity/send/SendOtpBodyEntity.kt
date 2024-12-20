@@ -3,8 +3,7 @@ package com.application.militarychatproject.domain.entity.send
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NewUserEntity(
+data class SendOtpBodyEntity(
     val login: String,
-    val password: String,
-    val nickname: String
+    val otp: String
 )

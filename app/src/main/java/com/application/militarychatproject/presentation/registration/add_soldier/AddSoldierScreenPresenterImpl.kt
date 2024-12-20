@@ -4,10 +4,10 @@ import androidx.navigation.NavController
 import com.application.militarychatproject.common.Constants.ADD_SOLDIER_SCREEN_ROUTE
 import com.application.militarychatproject.common.Constants.HOME_SCREEN_ROUTE
 
-class AddSoldierPresenterImpl(
+class AddSoldierScreenPresenterImpl(
     private val navController: NavController,
-    private val viewModel: AddSoldierViewModel
-) : AddSoldierPresenter {
+    private val viewModel: AddSoldierScreenViewModel
+) : AddSoldierScreenPresenter {
 
     override fun navigateToHome() {
         navController.navigate(HOME_SCREEN_ROUTE){

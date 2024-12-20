@@ -15,10 +15,22 @@ import com.application.militarychatproject.data.remote.network.BaseRequest
 import com.application.militarychatproject.data.remote.network.WebSocketClient
 import com.application.militarychatproject.data.repository.AuthorizationRepoImpl
 import com.application.militarychatproject.data.repository.RefreshTokenRepoImpl
+import com.application.militarychatproject.data.repository.UserRepoImpl
 import com.application.militarychatproject.domain.repository.AuthorizationRepository
 import com.application.militarychatproject.domain.repository.RefreshTokenRepository
+import com.application.militarychatproject.domain.repository.UserRepository
+import com.application.militarychatproject.domain.usecases.authorization.AddSoldierUseCase
+import com.application.militarychatproject.domain.usecases.authorization.DeleteTokenUseCase
+import com.application.militarychatproject.domain.usecases.authorization.GetOtpCodeUseCase
+import com.application.militarychatproject.domain.usecases.authorization.GetSoldierDataUseCase
+import com.application.militarychatproject.domain.usecases.authorization.IsAddedSoldierUseCase
 import com.application.militarychatproject.domain.usecases.authorization.IsAuthorizedUseCase
+import com.application.militarychatproject.domain.usecases.authorization.LogoutUseCase
+import com.application.militarychatproject.domain.usecases.authorization.RegistrationUseCase
+import com.application.militarychatproject.domain.usecases.authorization.SaveTokenUseCase
+import com.application.militarychatproject.domain.usecases.authorization.SendOtpUseCase
 import com.application.militarychatproject.domain.usecases.authorization.SignInUseCase
+import com.application.militarychatproject.domain.usecases.user.GetSelfUserDataUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -130,6 +142,14 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun providesUserData(context: Context) = UserData(context)
+
+    @Provides
+    @Singleton
+    fun providesWebSocketListener(@Named("WebSocketClient") client: HttpClient) = WebSocketClient(client)
+
+    @Provides
+    @Singleton
     fun providesBaseRequest(@Named("BaseClient") client: HttpClient, json: Json) = BaseRequest(client, json)
 
     @Provides
@@ -139,6 +159,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideRefreshRequest(baseRequest: BaseRequest) = RefreshTokenRequest(baseRequest)
+
+    //Requests
 
     @Provides
     @Singleton
@@ -168,13 +190,7 @@ object AppModule {
     @Singleton
     fun provideWebSocketRequests(client: WebSocketClient) = WebSocketRequests(client)
 
-    @Provides
-    @Singleton
-    fun providesUserData(context: Context) = UserData(context)
-
-    @Provides
-    @Singleton
-    fun providesWebSocketListener(@Named("WebSocketClient") client: HttpClient) = WebSocketClient(client)
+    //Repos
 
     @Provides
     @Singleton
@@ -182,13 +198,59 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRefreshTokenRepoImpl(request: RefreshTokenRequest) : RefreshTokenRepository = RefreshTokenRepoImpl(request)
+    fun provideUserRepoImpl(requests: UserRequests) : UserRepository = UserRepoImpl(requests)
 
     @Provides
     @Singleton
-    fun provideIsAuthorizedUseCase(userData: UserData, refreshTokenRepo: RefreshTokenRepository) = IsAuthorizedUseCase(userData, refreshTokenRepo)
+    fun provideRefreshTokenRepoImpl(request: RefreshTokenRequest) : RefreshTokenRepository = RefreshTokenRepoImpl(request)
+
+    //UseCases
+
+    @Provides
+    @Singleton
+    fun provideIsAuthorizedUseCase(userData: UserData) = IsAuthorizedUseCase(userData)
 
     @Provides
     @Singleton
     fun provideSignInUseCase(authorizationRepository: AuthorizationRepository) = SignInUseCase(authorizationRepository)
+
+    @Provides
+    @Singleton
+    fun provideIsAddedSoldierUseCase(context: Context) = IsAddedSoldierUseCase(context)
+
+    @Provides
+    @Singleton
+    fun provideAddSoldierUseCase(context: Context) = AddSoldierUseCase(context)
+
+    @Provides
+    @Singleton
+    fun provideSaveTokenUseCase(userData: UserData) = SaveTokenUseCase(userData)
+
+    @Provides
+    @Singleton
+    fun provideGetSoldierDataUseCase(context: Context) = GetSoldierDataUseCase(context)
+
+    @Provides
+    @Singleton
+    fun provideGetOtpCodeUseCase(authorizationRepository: AuthorizationRepository) = GetOtpCodeUseCase(authorizationRepository)
+
+    @Provides
+    @Singleton
+    fun provideRegistrationUseCase(authorizationRepository: AuthorizationRepository) = RegistrationUseCase(authorizationRepository)
+
+    @Provides
+    @Singleton
+    fun provideSendOtpUseCase(authorizationRepository: AuthorizationRepository) = SendOtpUseCase(authorizationRepository)
+
+    @Provides
+    @Singleton
+    fun provideGetSelfUserDataUseCase(userRepository: UserRepository) = GetSelfUserDataUseCase(userRepository)
+
+    @Provides
+    @Singleton
+    fun provideLogoutUseCase(authorizationRepository: AuthorizationRepository) = LogoutUseCase(authorizationRepository)
+
+    @Provides
+    @Singleton
+    fun provideDeleteTokenUseCase(userData: UserData) = DeleteTokenUseCase(userData)
 }

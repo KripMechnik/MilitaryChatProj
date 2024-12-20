@@ -1,19 +1,14 @@
-package com.application.militarychatproject.presentation.registration.add_soldier
+package com.application.militarychatproject.domain.usecases.authorization
 
 import android.content.Context
-import androidx.lifecycle.ViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-@HiltViewModel
-class AddSoldierViewModel @Inject constructor(
+class AddSoldierUseCase @Inject constructor(
     @ApplicationContext private val context: Context
-): ViewModel() {
-
-    private val sharedPrefs = context.getSharedPreferences("dates", Context.MODE_PRIVATE)
-
-    fun saveData(dateStart: String, dateEnd: String, name: String){
+) {
+    operator fun invoke(dateStart: String, dateEnd: String, name: String){
+        val sharedPrefs = context.getSharedPreferences("dates", Context.MODE_PRIVATE)
         val editor = sharedPrefs.edit()
         if (dateStart.isNotBlank() && dateEnd.isNotBlank()){
             editor.putString("start", dateStart)

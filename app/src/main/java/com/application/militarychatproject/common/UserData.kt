@@ -47,4 +47,12 @@ class UserData @Inject constructor (
         return token.value.accessToken.isNotBlank() && token.value.refreshToken.isNotBlank() && token.value.accessTokenExpiresAt.toInt() != -1 && token.value.refreshTokenExpiresAt.toInt() != -1
     }
 
+    fun deleteToken(){
+        editor.putString("accessToken", "")
+        editor.putString("refreshToken", "")
+        editor.putLong("accessTokenExpiresAt", -1)
+        editor.putLong("refreshTokenExpiresAt", -1)
+        editor.apply()
+    }
+
 }

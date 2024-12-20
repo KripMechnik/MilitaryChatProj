@@ -1,5 +1,6 @@
 package com.application.militarychatproject.presentation.login.view
 
+import android.util.Patterns
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,11 +12,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.application.militarychatproject.R
@@ -38,6 +41,16 @@ fun LoginScreen(
 
     val password = remember {
         mutableStateOf("")
+    }
+
+    val isErrorEmail = remember {
+        derivedStateOf {
+            if (eMail.value.isBlank()){
+                false
+            } else {
+                Patterns.EMAIL_ADDRESS.matcher(eMail.value).matches().not()
+            }
+        }
     }
 
     val state = presenter.state.collectAsState()
@@ -69,11 +82,14 @@ fun LoginScreen(
         ){
             InputPreset(
                 label = stringResource(R.string.e_mail),
-                state = eMail
+                state = eMail,
+                isError = isErrorEmail.value,
+                errorText = "Ошибка. E-Mail адрес не соответствует формату.",
             )
             InputPreset(
                 label = stringResource(R.string.password),
-                state = password
+                state = password,
+                visualTransformation = PasswordVisualTransformation()
             )
             ButtonPreset(
                 content = {
@@ -84,7 +100,10 @@ fun LoginScreen(
                 },
                 containerColor = MaterialTheme.colorScheme.secondary
             ){
-                presenter.loginUser(eMail.value, password.value)
+                if (!isErrorEmail.value){
+                    presenter.loginUser(eMail.value, password.value)
+                }
+
 
             }
             ButtonPreset(

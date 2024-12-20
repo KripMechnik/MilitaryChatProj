@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.application.militarychatproject.common.Resource
 import com.application.militarychatproject.data.remote.dto.TokenDTO
+import com.application.militarychatproject.domain.entity.receive.TokenEntity
 import com.application.militarychatproject.domain.entity.send.SignedInUserEntity
+import com.application.militarychatproject.domain.usecases.authorization.SaveTokenUseCase
 import com.application.militarychatproject.domain.usecases.authorization.SignInUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginScreenViewModel @Inject constructor(
-    private val signInUseCase: SignInUseCase
+    private val signInUseCase: SignInUseCase,
+    private val saveTokenUseCase: SaveTokenUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<LoginState?>(null)
@@ -33,6 +36,11 @@ class LoginScreenViewModel @Inject constructor(
                 is Resource.Success -> {
                     _state.value = LoginState.Success(response.data!!)
                     Log.e("login", "success " + response.data.accessToken)
+                    val data = response.data
+                    data.apply {
+                        saveTokenUseCase(accessToken.drop(7), refreshToken, accessTokenExpiresAt, refreshTokenExpiresAt)
+                    }
+
                 }
                 is Resource.Error -> {
                     _state.value = LoginState.Error(message = response.message ?: "Unknown error")
@@ -43,8 +51,8 @@ class LoginScreenViewModel @Inject constructor(
     }
 }
 
-sealed class LoginState(val data: TokenDTO? = null, val message: String? = null){
-    class Success(data: TokenDTO) : LoginState(data)
+sealed class LoginState(val data: TokenEntity? = null, val message: String? = null){
+    class Success(data: TokenEntity) : LoginState(data)
     class Error(message: String) : LoginState(message = message)
     class Loading() : LoginState()
 }

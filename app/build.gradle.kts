@@ -89,5 +89,10 @@ dependencies {
     //splash
     implementation(libs.androidx.core.splashscreen)
 
-    implementation("dev.chrisbanes.haze:haze-jetpack-compose:0.4.1")
+    //AsyncImage
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
+    //blur
+    implementation(libs.haze.jetpack.compose)
 }

@@ -72,6 +72,13 @@ val Typography = Typography(
         fontSize = 18.sp,
         lineHeight = 18.sp,
         letterSpacing = 0.sp
-    )
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = manropeFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 23.sp,
+        lineHeight = 23.sp,
+        letterSpacing = 0.sp,
+    ),
 )
 

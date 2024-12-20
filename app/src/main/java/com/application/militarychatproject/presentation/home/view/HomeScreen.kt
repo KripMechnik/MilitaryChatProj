@@ -143,9 +143,7 @@ fun HomeScreen(
                     },
                         style = MaterialTheme.typography.bodyMedium
                     )
-                    ShowProgress(score = state.percentageDouble?.let {
-                        it.toInt()
-                    } ?: 0)
+                    ShowProgress(score = state.percentageDouble?.toInt() ?: 0)
 
                     Text(
                         text = presenter.state.value.name ?: "Name not found",
@@ -384,20 +382,18 @@ fun FirstCardContent(
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
         ){
             Text(
-                modifier = Modifier
-                    .weight(1f),
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle(
                         fontFamily = manropeFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp,
+                        fontSize = 24.sp,
                         letterSpacing = 0.sp,
                         color = White
                     )
                     ) {
                         append(state.daysPast.toString())
                     }
-                    append(" д")
+                    append(" дней")
                 },
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Start
@@ -410,14 +406,14 @@ fun FirstCardContent(
                     withStyle(style = SpanStyle(
                         fontFamily = manropeFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp,
+                        fontSize = 24.sp,
                         letterSpacing = 0.sp,
                         color = White
                     )
                     ) {
                         append(state.hoursPast.toString())
                     }
-                    append(" ч")
+                    append(" часов")
                 },
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center
@@ -430,7 +426,7 @@ fun FirstCardContent(
                     withStyle(style = SpanStyle(
                         fontFamily = manropeFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp,
+                        fontSize = 24.sp,
                         letterSpacing = 0.sp,
                         color = White
                     )
@@ -444,20 +440,18 @@ fun FirstCardContent(
             )
 
             Text(
-                modifier = Modifier
-                    .weight(1f),
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle(
                         fontFamily = manropeFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp,
+                        fontSize = 24.sp,
                         letterSpacing = 0.sp,
                         color = White
                     )
                     ) {
                         append(state.secondsPast.toString())
                     }
-                    append(" сек")
+                    append(" секунд")
                 },
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.End
@@ -482,23 +476,20 @@ fun FirstCardContent(
             horizontalArrangement = Arrangement.SpaceEvenly
         ){
             Text(
-                modifier = Modifier
-                    .weight(1f),
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle(
                         fontFamily = manropeFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp,
+                        fontSize = 24.sp,
                         letterSpacing = 0.sp,
                         color = White
                     )
                     ) {
                         append(state.daysLeft.toString())
                     }
-                    append(" д")
+                    append(" дней")
                 },
                 style = MaterialTheme.typography.labelSmall,
-                textAlign = TextAlign.Start
             )
 
             Text(
@@ -508,14 +499,14 @@ fun FirstCardContent(
                     withStyle(style = SpanStyle(
                         fontFamily = manropeFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp,
+                        fontSize = 24.sp,
                         letterSpacing = 0.sp,
                         color = White
                     )
                     ) {
                         append(state.hoursLeft.toString())
                     }
-                    append(" ч")
+                    append(" часов")
                 },
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center
@@ -528,37 +519,34 @@ fun FirstCardContent(
                     withStyle(style = SpanStyle(
                         fontFamily = manropeFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp,
+                        fontSize = 24.sp,
                         letterSpacing = 0.sp,
                         color = White
                     )
                     ) {
                         append(state.minutesLeft.toString())
                     }
-                    append(" мин")
+                    append(" минут")
                 },
                 style = MaterialTheme.typography.labelSmall,
                 textAlign = TextAlign.Center
             )
 
             Text(
-                modifier = Modifier
-                    .weight(1f),
                 text = buildAnnotatedString {
                     withStyle(style = SpanStyle(
                         fontFamily = manropeFamily,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp,
+                        fontSize = 24.sp,
                         letterSpacing = 0.sp,
                         color = White
                     )
                     ) {
                         append(state.secondsLeft.toString())
                     }
-                    append(" сек")
+                    append(" секунд")
                 },
                 style = MaterialTheme.typography.labelSmall,
-                textAlign = TextAlign.End
             )
 
         }

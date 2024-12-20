@@ -1,5 +1,6 @@
 package com.application.militarychatproject.data.remote.network
 
+import android.util.Log
 import com.application.militarychatproject.common.Constants
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -35,17 +36,20 @@ class AuthRequest @Inject constructor(
             this.method = method
             this.host = Constants.BASE_HOST
             url {
-                protocol = URLProtocol.HTTPS
+                protocol = URLProtocol.HTTP
                 path(path)
                 parameters.appendAll(params)
             }
             contentType(ContentType.Application.Json)
+            Log.i("menu", this.headers.toString())
             body?.let { setBody(it) }
         }
 
+
+
         if (response.status.isSuccess()){
             val stringBody = response.body<String>()
-            if (stringBody.isNotBlank()) ApiResponse.Success(data = json.decodeFromString<T>(stringBody))
+            if (stringBody.startsWith("{")) ApiResponse.Success(data = json.decodeFromString<T>(stringBody))
             else ApiResponse.Success()
         } else {
             ApiResponse.Error(
