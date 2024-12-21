@@ -57,6 +57,7 @@ import com.application.militarychatproject.common.Constants.HOME_SCREEN_ROUTE
 import com.application.militarychatproject.common.Constants.LOGIN_SCREEN_ROUTE
 import com.application.militarychatproject.common.Constants.MENU_SCREEN_ROUTE
 import com.application.militarychatproject.common.Constants.MESSAGES_SCREEN_ROUTE
+import com.application.militarychatproject.common.Constants.PROFILE_SCREEN_ROUTE
 import com.application.militarychatproject.common.Constants.RESET_PASSWORD_SCREEN_ROUTE
 import com.application.militarychatproject.presentation.home.view.home
 import com.application.militarychatproject.presentation.login.view.login
@@ -129,7 +130,8 @@ class MainActivity : ComponentActivity() {
                     listOf(
                         HOME_SCREEN_ROUTE,
                         MESSAGES_SCREEN_ROUTE,
-                        MENU_SCREEN_ROUTE
+                        MENU_SCREEN_ROUTE,
+                        PROFILE_SCREEN_ROUTE
                     )
                 )
             }
@@ -140,7 +142,8 @@ class MainActivity : ComponentActivity() {
                         LOGIN_SCREEN_ROUTE,
                         RESET_PASSWORD_SCREEN_ROUTE,
                         CONFIRM_PASSWORD_SCREEN_ROUTE,
-                        ENTER_CODE_SCREEN_ROUTE
+                        ENTER_CODE_SCREEN_ROUTE,
+                        PROFILE_SCREEN_ROUTE
                     )
                 )
             }
@@ -149,86 +152,87 @@ class MainActivity : ComponentActivity() {
 
             Spacer(modifier = Modifier.consumeWindowInsets(WindowInsets.navigationBars))
             MilitaryChatProjectTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Scaffold (
-                        bottomBar = {
-                            AnimatedVisibility(
-                                visible = navBackStackEntry?.destination?.route in routesWithNav,
-                                enter = slideInVertically(initialOffsetY = { it }),
-                                exit = slideOutVertically(targetOffsetY = { it })
-                            ) {
-                                NavigationBar (
-                                    modifier = Modifier.clip(RoundedCornerShape(15.dp, 15.dp, 0.dp, 0.dp)),
-                                    windowInsets = WindowInsets.navigationBars
-                                ){
-                                    items.forEachIndexed{index, item ->
-                                        NavigationBarItem(
-                                            selected = selectedItemIndex == index,
-                                            onClick = {
-                                                selectedItemIndex = index
-                                                navController.navigate(item.route) {
-                                                    popUpTo(navController.graph.findStartDestination().id) {
-                                                        saveState = true
-                                                    }
-                                                    launchSingleTop = true
-                                                    restoreState = true
+
+                Scaffold (
+                    bottomBar = {
+                        AnimatedVisibility(
+                            visible = navBackStackEntry?.destination?.route in routesWithNav,
+                            enter = slideInVertically(initialOffsetY = { it }),
+                            exit = slideOutVertically(targetOffsetY = { it })
+                        ) {
+                            NavigationBar (
+                                modifier = Modifier.clip(RoundedCornerShape(15.dp, 15.dp, 0.dp, 0.dp)),
+                                windowInsets = WindowInsets.navigationBars
+                            ){
+                                items.forEachIndexed{index, item ->
+                                    NavigationBarItem(
+                                        selected = selectedItemIndex == index,
+                                        onClick = {
+                                            selectedItemIndex = index
+                                            navController.navigate(item.route) {
+                                                popUpTo(navController.graph.findStartDestination().id) {
+                                                    saveState = true
                                                 }
-                                            },
-                                            icon = {
-                                                Icon(
-                                                    imageVector = if (index == selectedItemIndex) item.selectedIcon else item.unselectedIcon,
-                                                    contentDescription = item.title
-                                                )
-                                            },
-                                            colors = NavigationBarItemDefaults.colors(
-                                                indicatorColor = Transparent
-                                            ),
-                                            label = {
-                                                Text(text = item.title, style = MaterialTheme.typography.labelSmall)
+                                                launchSingleTop = true
+                                                restoreState = true
                                             }
+                                        },
+                                        icon = {
+                                            Icon(
+                                                imageVector = if (index == selectedItemIndex) item.selectedIcon else item.unselectedIcon,
+                                                contentDescription = item.title
+                                            )
+                                        },
+                                        colors = NavigationBarItemDefaults.colors(
+                                            indicatorColor = Transparent
+                                        ),
+                                        label = {
+                                            Text(text = item.title, style = MaterialTheme.typography.labelSmall)
+                                        }
+                                    )
+                                }
+
+                            }
+                        }
+
+
+                    },
+                    topBar = {
+                        AnimatedVisibility(
+                            visible = navBackStackEntry?.destination?.route in routesWithTopBar,
+                            enter = slideInVertically(initialOffsetY = { -it }),
+                            exit = slideOutVertically(targetOffsetY = { -it })
+                        ) {
+                            TopAppBar(
+                                colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = White,
+                                    titleContentColor = MaterialTheme.colorScheme.primary,
+                                ),
+                                title = {
+                                    Text(
+                                        text = "Назад",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onBackground
+                                    )
+                                },
+                                navigationIcon = {
+                                    IconButton(onClick = { navController.navigateUp() }) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = "Localized description",
+                                            tint = MaterialTheme.colorScheme.onBackground
                                         )
                                     }
-
-                                }
-                            }
-
-
-                        },
-                        topBar = {
-                            AnimatedVisibility(
-                                visible = navBackStackEntry?.destination?.route in routesWithTopBar,
-                                enter = slideInVertically(initialOffsetY = { -it }),
-                                exit = slideOutVertically(targetOffsetY = { -it })
-                            ) {
-                                TopAppBar(
-                                    colors = TopAppBarDefaults.topAppBarColors(
-                                        containerColor = White,
-                                        titleContentColor = MaterialTheme.colorScheme.primary,
-                                    ),
-                                    title = {
-                                        Text(
-                                            text = "Назад",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onBackground
-                                        )
-                                    },
-                                    navigationIcon = {
-                                        IconButton(onClick = { navController.navigateUp() }) {
-                                            Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = "Localized description",
-                                                tint = MaterialTheme.colorScheme.onBackground
-                                            )
-                                        }
-                                    },
-                                )
-                            }
-
+                                },
+                            )
                         }
-                    ) { innerPadding ->
+
+                    }
+                ) { innerPadding ->
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
                         NavHost(navController = navController, startDestination = route) {
                             //With NavigationBar
                             home(navController)

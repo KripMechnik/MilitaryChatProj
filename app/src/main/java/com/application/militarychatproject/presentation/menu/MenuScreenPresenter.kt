@@ -13,4 +13,6 @@ interface MenuScreenPresenter {
     fun navigateToProfile()
 
     fun checkAuthorized()
+
+    fun getSelfUser()
 }

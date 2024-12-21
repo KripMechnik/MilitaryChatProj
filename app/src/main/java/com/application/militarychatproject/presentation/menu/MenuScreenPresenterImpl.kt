@@ -27,4 +27,8 @@ class MenuScreenPresenterImpl(
     override fun checkAuthorized() {
         viewModel.checkAuthorized()
     }
+
+    override fun getSelfUser() {
+        viewModel.getSelfUser()
+    }
 }

@@ -48,8 +48,8 @@ val Typography = Typography(
     titleLarge = TextStyle(
         fontFamily = manropeFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 40.sp,
-        lineHeight = 40.sp,
+        fontSize = 36.sp,
+        lineHeight = 36.sp,
         letterSpacing = 0.sp,
     ),
     titleMedium = TextStyle(

@@ -1,5 +1,6 @@
 package com.application.militarychatproject.presentation.home.view
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -31,12 +33,17 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -46,6 +53,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -58,6 +66,7 @@ import androidx.compose.ui.unit.sp
 import com.application.militarychatproject.R
 import com.application.militarychatproject.presentation.home.HomeScreenPresenter
 import com.application.militarychatproject.presentation.home.HomeState
+import com.application.militarychatproject.presentation.login.view.LoginScreen
 import com.application.militarychatproject.presentation.presets.ButtonPreset
 import com.application.militarychatproject.ui.theme.MilitaryChatProjectTheme
 import com.application.militarychatproject.ui.theme.Transparent
@@ -90,18 +99,33 @@ fun HomeScreen(
         }
     }
 
+    val sheetHeight by remember {
+        mutableIntStateOf(330)
+    }
+
+    Log.i("home", sheetHeight.toString())
+
     val state by presenter.state.collectAsState()
+
+    val scaffoldSheetState = rememberBottomSheetScaffoldState(
+        SheetState(
+            skipPartiallyExpanded = false,
+            density = LocalDensity.current,
+            initialValue = SheetValue.PartiallyExpanded,
+            skipHiddenState = true
+        )
+    )
 
     val hazeState = remember { HazeState() }
     BottomSheetScaffold(
         modifier = Modifier
-            .navigationBarsPadding()
             .haze(
                 state = hazeState,
                 backgroundColor = TransparentBlack,
                 tint = Color.Black.copy(alpha = .2f),
                 blurRadius = 15.dp,
             ),
+        scaffoldState = scaffoldSheetState,
         sheetContent = {
             Box(
                 modifier = Modifier
@@ -182,7 +206,7 @@ fun HomeScreen(
         },
         sheetDragHandle = {},
         sheetContainerColor = Transparent,
-        sheetPeekHeight = 330.dp //250
+        sheetPeekHeight = sheetHeight.dp //250
     ) {
         Box(
             modifier = Modifier

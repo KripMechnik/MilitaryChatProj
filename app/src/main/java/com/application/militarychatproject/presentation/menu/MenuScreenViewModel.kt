@@ -27,18 +27,10 @@ class MenuScreenViewModel @Inject constructor(
     private val _state = MutableStateFlow<MenuState?>(null)
     val state = _state.asStateFlow()
 
-
-
-    init {
-        if (_registered.value){
-            getSelfUser()
-        }
-    }
-
     fun checkAuthorized() {
         _registered.value = isAuthorizedUseCase()
     }
-    private fun getSelfUser(){
+    fun getSelfUser(){
         getSelfUserDataUseCase().onEach { result ->
             when (result) {
                 is Resource.Error -> {
