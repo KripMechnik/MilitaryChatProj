@@ -227,7 +227,7 @@ fun Registered(presenter: MenuScreenPresenter) {
                         horizontalAlignment = Alignment.Start
                     ) {
                         Text(
-                            text = state?.data?.nickname ?: "@nickname",
+                            text = state?.data?.nickname ?: "",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary
                         )

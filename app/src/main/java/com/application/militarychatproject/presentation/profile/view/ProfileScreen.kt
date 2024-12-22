@@ -47,6 +47,7 @@ import com.application.militarychatproject.presentation.profile.LogoutState
 import com.application.militarychatproject.presentation.profile.ProfileScreenPresenter
 import com.application.militarychatproject.presentation.profile.ProfileState
 import com.application.militarychatproject.presentation.profile.ResultCropState
+import com.application.militarychatproject.presentation.profile.SendCropState
 import com.application.militarychatproject.presentation.profile.photo_picker.Controls
 import com.application.militarychatproject.presentation.profile.photo_picker.setAspect
 import com.application.militarychatproject.ui.theme.MilitaryChatProjectTheme
@@ -74,14 +75,16 @@ fun ProfileScreen(
 
     val profileState by presenter.profileState.collectAsState()
 
+    val sendCropState by presenter.sendCropState.collectAsState()
+
     val cropState by presenter.cropState.collectAsState()
 
     var loginTextField by remember(profileState) {
-        mutableStateOf(profileState?.data?.nickname ?: "@exampleLogin")
+        mutableStateOf(profileState?.data?.nickname ?: "")
     }
 
     var emailTextField by remember(profileState) {
-        mutableStateOf(profileState?.data?.login ?: "exampleEmail@mail.ru")
+        mutableStateOf(profileState?.data?.login ?: "")
     }
 
     LaunchedEffect(state) {
@@ -95,6 +98,13 @@ fun ProfileScreen(
             Log.e("crop", cropState?.message ?: "Unknown error")
         } else if (cropState is ResultCropState.Success){
             Log.i("crop", cropState?.data.toString())
+            presenter.sendPhoto()
+        }
+    }
+
+    LaunchedEffect (sendCropState) {
+        if (sendCropState is SendCropState.Success){
+            presenter.getPhoto()
         }
     }
 
@@ -293,6 +303,9 @@ private fun ProfileScreenPreview() {
         override val profileState: StateFlow<ProfileState?>
             get() = MutableStateFlow(ProfileState.Loading())
 
+        override val sendCropState: StateFlow<SendCropState?>
+            get() = MutableStateFlow(null)
+
         override fun logout() {
 
         }
@@ -302,6 +315,14 @@ private fun ProfileScreenPreview() {
         }
 
         override fun setCropState(bitmap: ImageBitmap) {
+
+        }
+
+        override fun sendPhoto() {
+
+        }
+
+        override fun getPhoto() {
 
         }
     }

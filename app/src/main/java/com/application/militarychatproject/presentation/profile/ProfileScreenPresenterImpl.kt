@@ -18,6 +18,9 @@ class ProfileScreenPresenterImpl(
     override val profileState: StateFlow<ProfileState?>
         get() = viewModel.profileState
 
+    override val sendCropState: StateFlow<SendCropState?>
+        get() = viewModel.sendCropState
+
     override fun logout() {
         viewModel.logout()
     }
@@ -28,5 +31,13 @@ class ProfileScreenPresenterImpl(
 
     override fun setCropState(bitmap: ImageBitmap) {
         viewModel.setCropState(bitmap)
+    }
+
+    override fun sendPhoto() {
+        viewModel.sendImage()
+    }
+
+    override fun getPhoto() {
+        viewModel.getPhoto()
     }
 }

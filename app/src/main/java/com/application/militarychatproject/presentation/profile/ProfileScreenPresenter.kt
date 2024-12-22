@@ -11,9 +11,15 @@ interface ProfileScreenPresenter {
 
     val profileState: StateFlow<ProfileState?>
 
+    val sendCropState: StateFlow<SendCropState?>
+
     fun logout()
 
     fun navigateToMenu()
 
     fun setCropState(bitmap: ImageBitmap)
+
+    fun sendPhoto()
+
+    fun getPhoto()
 }

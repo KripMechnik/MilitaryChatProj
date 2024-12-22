@@ -30,7 +30,9 @@ import com.application.militarychatproject.domain.usecases.authorization.Registr
 import com.application.militarychatproject.domain.usecases.authorization.SaveTokenUseCase
 import com.application.militarychatproject.domain.usecases.authorization.SendOtpUseCase
 import com.application.militarychatproject.domain.usecases.authorization.SignInUseCase
+import com.application.militarychatproject.domain.usecases.user.GetPhotoUseCase
 import com.application.militarychatproject.domain.usecases.user.GetSelfUserDataUseCase
+import com.application.militarychatproject.domain.usecases.user.SavePhotoUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -253,4 +255,12 @@ object AppModule {
     @Provides
     @Singleton
     fun provideDeleteTokenUseCase(userData: UserData) = DeleteTokenUseCase(userData)
+
+    @Provides
+    @Singleton
+    fun provideSavePhotoUseCase(userRepository: UserRepository) = SavePhotoUseCase(userRepository)
+
+    @Provides
+    @Singleton
+    fun provideGetPhotoUseCase(userRepository: UserRepository) = GetPhotoUseCase(userRepository)
 }

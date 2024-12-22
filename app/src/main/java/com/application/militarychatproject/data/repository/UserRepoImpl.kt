@@ -32,8 +32,8 @@ class UserRepoImpl @Inject constructor (
         return userRequests.getUserByIdRequest(id)
     }
 
-    override suspend fun savePhoto(): ApiResponse<Unit> {
-        TODO("Not yet implemented")
+    override suspend fun savePhoto(byteArray: ByteArray): ApiResponse<Unit> {
+        return userRequests.savePhotoRequest(byteArray)
     }
 
     override suspend fun setStatusOnline(): ApiResponse<Unit> {

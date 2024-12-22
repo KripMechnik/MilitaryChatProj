@@ -1,11 +1,17 @@
 package com.application.militarychatproject.data.remote
 
+import android.graphics.Bitmap
+import androidx.compose.ui.graphics.ImageBitmap
 import com.application.militarychatproject.data.remote.dto.PhotoDTO
 import com.application.militarychatproject.data.remote.dto.SelfUserDTO
 import com.application.militarychatproject.data.remote.dto.UserDTO
 import com.application.militarychatproject.data.remote.network.ApiResponse
 import com.application.militarychatproject.data.remote.network.AuthRequest
 import com.application.militarychatproject.data.remote.network.BaseRequest
+import io.ktor.client.request.forms.MultiPartFormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.util.StringValues
 import javax.inject.Inject
@@ -68,7 +74,22 @@ class UserRequests @Inject constructor(
     }
 
     //token -> yes
-    suspend fun savePhotoRequest(){}
+    suspend fun savePhotoRequest(byteArray: ByteArray) : ApiResponse<Unit>{
+        return authRequest(
+            formData = true,
+            path = basePath + "avatar",
+            method = HttpMethod.Post,
+            body = MultiPartFormDataContent(
+                formData {
+                    append("image", byteArray, Headers.build {
+                        append(HttpHeaders.ContentType, "image/png")
+                        append(HttpHeaders.ContentDisposition, "filename=\"avatar\"")
+                    })
+
+                }
+            )
+        )
+    }
 
     //token -> yes
     suspend fun setStatusOfflineRequest() : ApiResponse<Unit>{

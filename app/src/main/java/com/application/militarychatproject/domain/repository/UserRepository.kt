@@ -17,7 +17,7 @@ interface UserRepository {
 
     suspend fun getUserById(id: String): ApiResponse<UserDTO>
 
-    suspend fun savePhoto(): ApiResponse<Unit>
+    suspend fun savePhoto(byteArray: ByteArray): ApiResponse<Unit>
 
     suspend fun setStatusOnline(): ApiResponse<Unit>
 

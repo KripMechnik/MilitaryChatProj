@@ -27,6 +27,7 @@ class AuthRequest @Inject constructor(
 ){
 
     suspend inline operator fun <reified T> invoke(
+        formData: Boolean = false,
         path: String,
         params: StringValues = StringValues.Empty,
         method: HttpMethod,
@@ -40,7 +41,11 @@ class AuthRequest @Inject constructor(
                 path(path)
                 parameters.appendAll(params)
             }
-            contentType(ContentType.Application.Json)
+            if (formData){
+                contentType(ContentType.MultiPart.FormData)
+            } else {
+                contentType(ContentType.Application.Json)
+            }
             Log.i("menu", this.headers.toString())
             body?.let { setBody(it) }
         }
