@@ -15,6 +15,6 @@ class RegistrationUseCase @Inject constructor(
         emit(Resource.Loading())
         val response = authorizationRepository.registration(newUser)
         if (response is ApiResponse.Success) emit(Resource.Success(data = Unit))
-        else emit(Resource.Error(message = response.errorMessage ?: "Unknown error", data = response.data, code = response.errorCode))
+        else emit(Resource.Error(message = response.errorMessage ?: "Unknown error", code = response.errorCode))
     }
 }

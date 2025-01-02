@@ -1,13 +1,20 @@
 package com.application.militarychatproject.presentation.login.view
 
+import android.util.Log
 import android.util.Patterns
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -43,16 +50,6 @@ fun LoginScreen(
         mutableStateOf("")
     }
 
-    val isErrorEmail = remember {
-        derivedStateOf {
-            if (eMail.value.isBlank()){
-                false
-            } else {
-                Patterns.EMAIL_ADDRESS.matcher(eMail.value).matches().not()
-            }
-        }
-    }
-
     val state = presenter.state.collectAsState()
 
     LaunchedEffect(state.value) {
@@ -80,16 +77,31 @@ fun LoginScreen(
             verticalArrangement = Arrangement.spacedBy(space = 15.dp, alignment = Alignment.CenterVertically)
 
         ){
+
+            AnimatedVisibility(
+                visible = state.value is LoginState.Error,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    text = "Ошибка! Неверный E-mail или пароль.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
+
             InputPreset(
                 label = stringResource(R.string.e_mail),
                 state = eMail,
-                isError = isErrorEmail.value,
-                errorText = "Ошибка. E-Mail адрес не соответствует формату.",
+                isError = state.value is LoginState.Error,
             )
             InputPreset(
                 label = stringResource(R.string.password),
                 state = password,
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = PasswordVisualTransformation(),
+                isError = state.value is LoginState.Error,
             )
             ButtonPreset(
                 content = {
@@ -100,11 +112,7 @@ fun LoginScreen(
                 },
                 containerColor = MaterialTheme.colorScheme.secondary
             ){
-                if (!isErrorEmail.value){
-                    presenter.loginUser(eMail.value, password.value)
-                }
-
-
+                presenter.loginUser(eMail.value, password.value)
             }
             ButtonPreset(
                 label = stringResource(R.string.forget_password),
@@ -139,6 +147,11 @@ private fun LoginScreenPreview() {
 
     }
     MilitaryChatProjectTheme {
-        LoginScreen(presenter)
+        Surface(
+          color = White
+        ) {
+            LoginScreen(presenter)
+        }
+
     }
 }

@@ -11,6 +11,10 @@ import javax.inject.Inject
 class MessageRepoImpl @Inject constructor (
     private val messageRequests: MessageRequests
 ) : MessageRepository {
+    override suspend fun getGlobalChat(): ApiResponse<ChatDTO> {
+        return messageRequests.getGlobalChatRequest()
+    }
+
     override suspend fun deleteChat(chatId: String): ApiResponse<Unit> {
         return messageRequests.deleteChatRequest(chatId)
     }
@@ -23,16 +27,16 @@ class MessageRepoImpl @Inject constructor (
         return messageRequests.getListOfChatsRequest()
     }
 
-    override suspend fun getListOfMessages(chatId: String): ApiResponse<List<MessageDTO>> {
-        return messageRequests.getListOfMessagesRequest(chatId)
+    override suspend fun getListOfMessages(chatId: String, messageId: String): ApiResponse<List<MessageDTO>> {
+        return messageRequests.getListOfMessagesRequest(chatId, messageId)
     }
 
     override suspend fun readMessage(chatId: String): ApiResponse<Unit> {
         return messageRequests.readMessageRequest(chatId)
     }
 
-    override suspend fun sendMessage(chatId: String): ApiResponse<MessageDTO> {
-        return messageRequests.sendMessageRequest(chatId)
+    override suspend fun sendMessage(chatId: String, text: String, replyToId: String): ApiResponse<MessageDTO> {
+        return messageRequests.sendMessageRequest(chatId, text, replyToId)
     }
 
     override suspend fun updateMessage(messageId: String, updatedMessage: UpdatedMessageEntity): ApiResponse<Unit> {

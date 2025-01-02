@@ -10,12 +10,10 @@ import javax.inject.Inject
 class DeleteAccUseCase @Inject constructor(
     private val authorizationRepository: AuthorizationRepository
 ) {
-    suspend operator fun invoke() : Flow<Resource<Unit>> = flow {
+    operator fun invoke() : Flow<Resource<Unit>> = flow {
         emit(Resource.Loading())
         val response = authorizationRepository.deleteAccount()
         if (response is ApiResponse.Success) emit(Resource.Success(Unit))
-        else emit(Resource.Error(message = response.errorMessage ?: "Unknown error", data = response.data))
+        else emit(Resource.Error(message = response.errorMessage ?: "Unknown error", code = response.errorCode))
     }
-
-
 }

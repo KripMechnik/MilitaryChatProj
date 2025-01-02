@@ -2,6 +2,7 @@ package com.application.militarychatproject.common
 
 object Constants {
     const val BASE_HOST = "93.183.82.224:3000"
+    const val BASE_WEBSOCKET_HOST = "ws://93.183.82.224:4000"
 
     const val HOME_SCREEN_ROUTE = "home"
     const val REGISTRATION_SCREEN_ROUTE = "registration"
@@ -13,4 +14,6 @@ object Constants {
     const val ENTER_CODE_SCREEN_ROUTE = "enter_code"
     const val CONFIRM_PASSWORD_SCREEN_ROUTE = "confirm_password"
     const val PROFILE_SCREEN_ROUTE = "profile"
+    const val CHAT_SCREEN_ROUTE = "chat"
+    const val CALENDAR_SCREEN_ROUTE = "calendar"
 }

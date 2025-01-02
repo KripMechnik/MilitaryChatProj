@@ -1,16 +1,24 @@
 package com.application.militarychatproject.domain.entity.receive
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class MessageEntity(
     val attachmentLinks: List<String>,
     val chatId: String,
     val creationDate: String,
     val creationTime: String,
-    val id: String,
-    val isEdited: String,
-    val isRead: String,
-    val isSender: String,
-    val senderAvatarLink: String,
+    val messageId: String,
+    var isEdited: Boolean,
+    val isRead: Boolean,
+    val isSender: Boolean,
+    val senderAvatarLink: String?,
     val senderId: String,
-    val senderName: String,
-    val text: String
+    val senderNickname: String,
+    var text: String,
+    val repliedMessageId: String?,
+    val repliedMessageText: String?,
+    val repliedMessageSender: String?,
+    var isLastInRow: Boolean = false,
+    var deleted: Boolean = false
 )

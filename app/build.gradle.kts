@@ -96,6 +96,23 @@ dependencies {
     //blur
     implementation(libs.haze.jetpack.compose)
 
+    //Calendar
+    implementation ("io.github.boguszpawlowski.composecalendar:composecalendar:1.3.0")
+
+    //SwipeRefresh
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.27.0")
+
+    //wheelDatePicker
+    implementation ("com.github.ozcanalasalvar.picker:datepicker:2.0.7")
+    implementation ("com.github.ozcanalasalvar.picker:wheelview:2.0.7")
+
+    //BottomSheetDialog
+    implementation ("com.holix.android:bottomsheetdialog-compose:1.5.1")
+
     //crop
     implementation("io.github.mr0xf00:easycrop:0.1.1")
+
+    //Room
+    implementation("androidx.room:room-ktx:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
 }

@@ -13,6 +13,8 @@ interface ProfileScreenPresenter {
 
     val sendCropState: StateFlow<SendCropState?>
 
+    val deleteAccState: StateFlow<DeleteAccState?>
+
     fun logout()
 
     fun navigateToMenu()
@@ -22,4 +24,6 @@ interface ProfileScreenPresenter {
     fun sendPhoto()
 
     fun getPhoto()
+
+    fun delete()
 }

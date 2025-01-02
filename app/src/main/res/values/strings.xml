@@ -14,4 +14,6 @@
     <string name="enter_acc">Войти \nв аккаунт</string>
     <string name="enter">Войти</string>
     <string name="forget_password">Забыли пароль?</string>
+    <string name="chats">Чаты</string>
+    <string name="calendar">Календарь</string>
 </resources>

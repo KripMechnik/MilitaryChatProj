@@ -80,5 +80,12 @@ val Typography = Typography(
         lineHeight = 23.sp,
         letterSpacing = 0.sp,
     ),
+    headlineLarge = TextStyle(
+        fontFamily = manropeFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 28.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp,
+    ),
 )
 

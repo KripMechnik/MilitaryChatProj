@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.application.militarychatproject.common.Resource
 import com.application.militarychatproject.domain.entity.receive.PhotoEntity
 import com.application.militarychatproject.domain.entity.receive.SelfUserEntity
+import com.application.militarychatproject.domain.usecases.authorization.DeleteAccUseCase
 import com.application.militarychatproject.domain.usecases.authorization.DeleteTokenUseCase
 import com.application.militarychatproject.domain.usecases.authorization.LogoutUseCase
 import com.application.militarychatproject.domain.usecases.user.GetPhotoUseCase
@@ -31,7 +32,8 @@ class ProfileScreenViewModel @Inject constructor(
     private val deleteTokenUseCase: DeleteTokenUseCase,
     private val getSelfUserDataUseCase: GetSelfUserDataUseCase,
     private val savePhotoUseCase: SavePhotoUseCase,
-    private val getPhotoUseCase: GetPhotoUseCase
+    private val getPhotoUseCase: GetPhotoUseCase,
+    private val deleteAccUseCase: DeleteAccUseCase
 ) : ViewModel(){
 
 
@@ -47,6 +49,9 @@ class ProfileScreenViewModel @Inject constructor(
 
     private val _sendCropState = MutableStateFlow<SendCropState?>(null)
     val sendCropState = _sendCropState.asStateFlow()
+
+    private val _deleteAccState = MutableStateFlow<DeleteAccState?>(null)
+    val deleteAccState = _deleteAccState.asStateFlow()
 
     init {
         getSelfUser()
@@ -126,6 +131,28 @@ class ProfileScreenViewModel @Inject constructor(
         return image
     }
 
+    fun delete(){
+        deleteAccUseCase().onEach { result ->
+            when (result) {
+                is Resource.Error -> {
+                    _deleteAccState.value = DeleteAccState.Error(message = result.message ?: "Unknown error", code = result.code)
+                    Log.e("menu_send", result.code.toString() + " " + result.message)
+                }
+                is Resource.Loading -> _deleteAccState.value = DeleteAccState.Loading()
+                is Resource.Success -> {
+                    _deleteAccState.value = DeleteAccState.Success(Unit)
+                    deleteTokenUseCase()
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+
+}
+
+sealed class DeleteAccState(val data: Unit? = null, val message: String? = null, val code: Int? = null){
+    class Success(data: Unit) : DeleteAccState(data)
+    class Error(message: String, code: Int?) : DeleteAccState(message = message, code = code)
+    class Loading : DeleteAccState()
 }
 
 sealed class LogoutState(val data: Unit? = null, val message: String? = null, val code: Int? = null){

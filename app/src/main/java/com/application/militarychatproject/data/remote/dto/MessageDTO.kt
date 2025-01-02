@@ -9,18 +9,21 @@ data class MessageDTO(
     val chatId: String,
     val creationDate: String,
     val creationTime: String,
-    val id: String,
-    val isEdited: String,
-    val isRead: String,
-    val isSender: String,
-    val senderAvatarLink: String,
+    val messageId: String,
+    val isEdited: Boolean,
+    val isRead: Boolean,
+    val isSender: Boolean,
+    val senderAvatarLink: String?,
     val senderId: String,
-    val senderName: String,
-    val text: String
+    val senderNickname: String,
+    val text: String,
+    val repliedMessageId: String?,
+    val repliedMessageText: String?,
+    val repliedMessageSender: String?
 )
 
 fun MessageDTO.toMessageEntity(): MessageEntity = MessageEntity(
-    id = this.id,
+    messageId = this.messageId,
     chatId = this.chatId,
     creationDate = this.creationDate,
     attachmentLinks = this.attachmentLinks,
@@ -30,6 +33,9 @@ fun MessageDTO.toMessageEntity(): MessageEntity = MessageEntity(
     isSender = this.isSender,
     senderAvatarLink = this.senderAvatarLink,
     senderId = this.senderId,
-    senderName = this.senderName,
-    text = this.text
+    senderNickname = this.senderNickname,
+    text = this.text,
+    repliedMessageId = this.repliedMessageId,
+    repliedMessageText = this.repliedMessageText,
+    repliedMessageSender = this.repliedMessageSender
 )

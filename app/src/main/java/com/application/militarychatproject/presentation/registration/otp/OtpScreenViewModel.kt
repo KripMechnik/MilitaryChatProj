@@ -45,6 +45,7 @@ class OtpViewModel @Inject constructor(
     }
 
     fun getCode(){
+        Log.e("otp", email.value)
         val otpBody = GetOtpBodyEntity(email.value)
         getOtpCodeUseCase(otpBody).onEach { result ->
             when (result) {

@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -97,7 +98,9 @@ fun Unregistered(
             TextButton(
                 modifier = Modifier
                     .fillMaxWidth(),
-                onClick = {},
+                onClick = {
+                    presenter.navigateToCalendar()
+                },
                 contentPadding = PaddingValues(0.dp)
             ) {
                 Text(
@@ -216,7 +219,8 @@ fun Registered(presenter: MenuScreenPresenter) {
                             .clip(CircleShape),
                         model = state?.data?.avatarLink,
                         contentDescription = "Avatar image",
-                        error = painterResource(R.drawable.no_avatar)
+                        error = painterResource(R.drawable.no_avatar),
+                        placeholder = ColorPainter(MaterialTheme.colorScheme.onPrimaryContainer)
                     )
 
                     Column(
@@ -256,7 +260,9 @@ fun Registered(presenter: MenuScreenPresenter) {
             TextButton(
                 modifier = Modifier
                     .fillMaxWidth(),
-                onClick = {},
+                onClick = {
+                    presenter.navigateToCalendar()
+                },
                 contentPadding = PaddingValues(0.dp)
             ) {
                 Text(
@@ -329,6 +335,10 @@ private fun RegisteredPreview() {
         }
 
         override fun navigateToProfile() {
+
+        }
+
+        override fun navigateToCalendar() {
 
         }
 

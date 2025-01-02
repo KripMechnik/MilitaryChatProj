@@ -5,6 +5,7 @@ import com.application.militarychatproject.common.Constants
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ServerResponseException
+import io.ktor.client.request.headers
 import io.ktor.client.request.host
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
@@ -14,6 +15,7 @@ import io.ktor.http.URLProtocol
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.http.path
+import io.ktor.http.vary
 import io.ktor.util.StringValues
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -29,6 +31,7 @@ class AuthRequest @Inject constructor(
     suspend inline operator fun <reified T> invoke(
         formData: Boolean = false,
         path: String,
+        query: String = "",
         params: StringValues = StringValues.Empty,
         method: HttpMethod,
         body: Any? = null
@@ -38,8 +41,11 @@ class AuthRequest @Inject constructor(
             this.host = Constants.BASE_HOST
             url {
                 protocol = URLProtocol.HTTP
-                path(path)
+                path(path + query)
                 parameters.appendAll(params)
+                headers {
+                    append("Connection", "close")
+                }
             }
             if (formData){
                 contentType(ContentType.MultiPart.FormData)
@@ -54,12 +60,13 @@ class AuthRequest @Inject constructor(
 
         if (response.status.isSuccess()){
             val stringBody = response.body<String>()
-            if (stringBody.startsWith("{")) ApiResponse.Success(data = json.decodeFromString<T>(stringBody))
+            if (stringBody.startsWith("{") || stringBody.startsWith("[")) ApiResponse.Success(data = json.decodeFromString<T>(stringBody))
             else ApiResponse.Success()
         } else {
+            val stringBody = response.body<String>()
             ApiResponse.Error(
                 errorCode = response.status.value,
-                errorMessage = response.status.description
+                errorMessage = response.status.description + "\n" + stringBody
             )
         }
 

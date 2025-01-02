@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -51,6 +52,8 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.application.militarychatproject.common.Constants.CALENDAR_SCREEN_ROUTE
+import com.application.militarychatproject.common.Constants.CHAT_SCREEN_ROUTE
 import com.application.militarychatproject.common.Constants.CONFIRM_PASSWORD_SCREEN_ROUTE
 import com.application.militarychatproject.common.Constants.ENTER_CODE_SCREEN_ROUTE
 import com.application.militarychatproject.common.Constants.HOME_SCREEN_ROUTE
@@ -59,10 +62,12 @@ import com.application.militarychatproject.common.Constants.MENU_SCREEN_ROUTE
 import com.application.militarychatproject.common.Constants.MESSAGES_SCREEN_ROUTE
 import com.application.militarychatproject.common.Constants.PROFILE_SCREEN_ROUTE
 import com.application.militarychatproject.common.Constants.RESET_PASSWORD_SCREEN_ROUTE
+import com.application.militarychatproject.presentation.calendar.view.calendar
 import com.application.militarychatproject.presentation.home.view.home
 import com.application.militarychatproject.presentation.login.view.login
 import com.application.militarychatproject.presentation.menu.view.menu
-import com.application.militarychatproject.presentation.messanger.view.allChats
+import com.application.militarychatproject.presentation.messanger.all_chats.view.allChats
+import com.application.militarychatproject.presentation.messanger.chat.view.chat
 import com.application.militarychatproject.presentation.profile.view.profile
 import com.application.militarychatproject.presentation.registration.registration.view.registration
 import com.application.militarychatproject.presentation.registration.add_soldier.view.addSoldier
@@ -131,7 +136,8 @@ class MainActivity : ComponentActivity() {
                         HOME_SCREEN_ROUTE,
                         MESSAGES_SCREEN_ROUTE,
                         MENU_SCREEN_ROUTE,
-                        PROFILE_SCREEN_ROUTE
+                        PROFILE_SCREEN_ROUTE,
+                        CALENDAR_SCREEN_ROUTE
                     )
                 )
             }
@@ -155,11 +161,7 @@ class MainActivity : ComponentActivity() {
 
                 Scaffold (
                     bottomBar = {
-                        AnimatedVisibility(
-                            visible = navBackStackEntry?.destination?.route in routesWithNav,
-                            enter = slideInVertically(initialOffsetY = { it }),
-                            exit = slideOutVertically(targetOffsetY = { it })
-                        ) {
+                        if(navBackStackEntry?.destination?.route in routesWithNav){
                             NavigationBar (
                                 modifier = Modifier.clip(RoundedCornerShape(15.dp, 15.dp, 0.dp, 0.dp)),
                                 windowInsets = WindowInsets.navigationBars
@@ -238,6 +240,7 @@ class MainActivity : ComponentActivity() {
                             home(navController)
                             menu(navController)
                             allChats(navController)
+                            calendar(navController)
 
                             //Without NavigationBar
                             registration(navController)
@@ -245,6 +248,7 @@ class MainActivity : ComponentActivity() {
                             login(navController)
                             otp(navController)
                             profile(navController)
+                            chat(navController)
                         }
                     }
                 }

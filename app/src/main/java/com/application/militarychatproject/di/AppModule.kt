@@ -1,7 +1,10 @@
 package com.application.militarychatproject.di
 
 import android.content.Context
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.application.militarychatproject.common.UserData
+import com.application.militarychatproject.data.calendar_database.CalendarDatabase
 import com.application.militarychatproject.data.remote.AuthorizationRequests
 import com.application.militarychatproject.data.remote.EventsRequests
 import com.application.militarychatproject.data.remote.FriendsRequests
@@ -14,12 +17,23 @@ import com.application.militarychatproject.data.remote.network.AuthRequest
 import com.application.militarychatproject.data.remote.network.BaseRequest
 import com.application.militarychatproject.data.remote.network.WebSocketClient
 import com.application.militarychatproject.data.repository.AuthorizationRepoImpl
+import com.application.militarychatproject.data.repository.EventsRepoImpl
+import com.application.militarychatproject.data.repository.FriendsRepoImpl
+import com.application.militarychatproject.data.repository.MessageRepoImpl
 import com.application.militarychatproject.data.repository.RefreshTokenRepoImpl
+import com.application.militarychatproject.data.repository.TimerRepoImpl
 import com.application.militarychatproject.data.repository.UserRepoImpl
+import com.application.militarychatproject.data.repository.WebSocketRepoImpl
 import com.application.militarychatproject.domain.repository.AuthorizationRepository
+import com.application.militarychatproject.domain.repository.EventsRepository
+import com.application.militarychatproject.domain.repository.FriendsRepository
+import com.application.militarychatproject.domain.repository.MessageRepository
 import com.application.militarychatproject.domain.repository.RefreshTokenRepository
+import com.application.militarychatproject.domain.repository.TimerRepository
 import com.application.militarychatproject.domain.repository.UserRepository
+import com.application.militarychatproject.domain.repository.WebSocketRepository
 import com.application.militarychatproject.domain.usecases.authorization.AddSoldierUseCase
+import com.application.militarychatproject.domain.usecases.authorization.DeleteAccUseCase
 import com.application.militarychatproject.domain.usecases.authorization.DeleteTokenUseCase
 import com.application.militarychatproject.domain.usecases.authorization.GetOtpCodeUseCase
 import com.application.militarychatproject.domain.usecases.authorization.GetSoldierDataUseCase
@@ -30,9 +44,18 @@ import com.application.militarychatproject.domain.usecases.authorization.Registr
 import com.application.militarychatproject.domain.usecases.authorization.SaveTokenUseCase
 import com.application.militarychatproject.domain.usecases.authorization.SendOtpUseCase
 import com.application.militarychatproject.domain.usecases.authorization.SignInUseCase
+import com.application.militarychatproject.domain.usecases.events.GetAllEventsUseCase
+import com.application.militarychatproject.domain.usecases.messages.DeleteMessageUseCase
+import com.application.militarychatproject.domain.usecases.messages.GetGlobalChatUseCase
+import com.application.militarychatproject.domain.usecases.messages.GetListOfMessagesUseCase
+import com.application.militarychatproject.domain.usecases.messages.ReadMessageUseCase
+import com.application.militarychatproject.domain.usecases.messages.SendMessageUseCase
+import com.application.militarychatproject.domain.usecases.messages.UpdateMessageUseCase
 import com.application.militarychatproject.domain.usecases.user.GetPhotoUseCase
 import com.application.militarychatproject.domain.usecases.user.GetSelfUserDataUseCase
 import com.application.militarychatproject.domain.usecases.user.SavePhotoUseCase
+import com.application.militarychatproject.domain.usecases.web_socket.CloseSessionUseCase
+import com.application.militarychatproject.domain.usecases.web_socket.ListenToSocketUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -83,6 +106,10 @@ object AppModule {
     fun providesWebSocketClient(json: Json) = HttpClient(OkHttp){
         install(Logging){
             level = LogLevel.ALL
+        }
+
+        install(ContentNegotiation){
+            json(json)
         }
 
         install(WebSockets) {
@@ -148,7 +175,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providesWebSocketListener(@Named("WebSocketClient") client: HttpClient) = WebSocketClient(client)
+    fun providesWebSocketListener(@Named("WebSocketClient") client: HttpClient, userData: UserData) = WebSocketClient(client, userData)
 
     @Provides
     @Singleton
@@ -158,11 +185,11 @@ object AppModule {
     @Singleton
     fun providesAuthRequest(@Named("AuthClient") client: HttpClient, json: Json) = AuthRequest(client, json)
 
+    //Requests
+
     @Provides
     @Singleton
     fun provideRefreshRequest(baseRequest: BaseRequest) = RefreshTokenRequest(baseRequest)
-
-    //Requests
 
     @Provides
     @Singleton
@@ -178,7 +205,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMessageRequests(authRequest: AuthRequest) = MessageRequests(authRequest)
+    fun provideMessageRequests(authRequest: AuthRequest, baseRequest: BaseRequest) = MessageRequests(authRequest, baseRequest)
 
     @Provides
     @Singleton
@@ -205,6 +232,26 @@ object AppModule {
     @Provides
     @Singleton
     fun provideRefreshTokenRepoImpl(request: RefreshTokenRequest) : RefreshTokenRepository = RefreshTokenRepoImpl(request)
+
+    @Provides
+    @Singleton
+    fun provideMessageRepoImpl(request: MessageRequests) : MessageRepository = MessageRepoImpl(request)
+
+    @Provides
+    @Singleton
+    fun provideEventsRepoImpl(request: EventsRequests) : EventsRepository = EventsRepoImpl(request)
+
+    @Provides
+    @Singleton
+    fun provideFriendsRepoImpl(request: FriendsRequests) : FriendsRepository = FriendsRepoImpl(request)
+
+    @Provides
+    @Singleton
+    fun provideTimerRepoImpl(request: TimerRequests) : TimerRepository = TimerRepoImpl(request)
+
+    @Provides
+    @Singleton
+    fun provideWebsocketRepoImpl(request: WebSocketRequests) : WebSocketRepository = WebSocketRepoImpl(request)
 
     //UseCases
 
@@ -263,4 +310,59 @@ object AppModule {
     @Provides
     @Singleton
     fun provideGetPhotoUseCase(userRepository: UserRepository) = GetPhotoUseCase(userRepository)
+
+    @Provides
+    @Singleton
+    fun provideDeleteAccUseCase(authorizationRepository: AuthorizationRepository) = DeleteAccUseCase(authorizationRepository)
+
+    @Provides
+    @Singleton
+    fun provideGetGlobalChatUseCase(messageRepository: MessageRepository) = GetGlobalChatUseCase(messageRepository)
+
+    @Provides
+    @Singleton
+    fun provideGetListOfMessagesUseCase(messageRepository: MessageRepository) = GetListOfMessagesUseCase(messageRepository)
+
+    @Provides
+    @Singleton
+    fun provideSendMessageUseCase(messageRepository: MessageRepository) = SendMessageUseCase(messageRepository)
+
+    @Provides
+    @Singleton
+    fun provideListenToSocketUseCase(webSocketRepository: WebSocketRepository) = ListenToSocketUseCase(webSocketRepository)
+
+    @Provides
+    @Singleton
+    fun provideGetAllEventsUseCase(eventsRepository: EventsRepository) = GetAllEventsUseCase(eventsRepository)
+
+    @Provides
+    @Singleton
+    fun provideReadMessagesUseCase(messageRepository: MessageRepository) = ReadMessageUseCase(messageRepository)
+
+    @Provides
+    @Singleton
+    fun provideUpdateMessageUseCase(messageRepository: MessageRepository) = UpdateMessageUseCase(messageRepository)
+
+    @Provides
+    @Singleton
+    fun provideDeleteMessageUseCase(messageRepository: MessageRepository) = DeleteMessageUseCase(messageRepository)
+
+    //Database
+    @Provides
+    @Singleton
+    fun provideDatabase(@ApplicationContext appContext: Context): CalendarDatabase {
+        return Room.databaseBuilder(
+            context = appContext,
+            klass = CalendarDatabase::class.java,
+            name = "calendar.db"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDao(db: CalendarDatabase) = db.dao
+
+    @Provides
+    @Singleton
+    fun provideCloseSessionUseCase(webSocketRepository: WebSocketRepository) = CloseSessionUseCase(webSocketRepository)
 }

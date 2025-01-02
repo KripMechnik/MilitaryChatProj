@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,6 +42,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -64,6 +67,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.application.militarychatproject.R
+import com.application.militarychatproject.domain.entity.receive.EventEntity
 import com.application.militarychatproject.presentation.home.HomeScreenPresenter
 import com.application.militarychatproject.presentation.home.HomeState
 import com.application.militarychatproject.presentation.login.view.LoginScreen
@@ -103,9 +107,13 @@ fun HomeScreen(
         mutableIntStateOf(330)
     }
 
+    val nearestEvent = presenter.nearestEvent.collectAsState()
+
     Log.i("home", sheetHeight.toString())
 
     val state by presenter.state.collectAsState()
+
+    val eventAchieve = presenter.eventAchieve.collectAsState()
 
     val scaffoldSheetState = rememberBottomSheetScaffoldState(
         SheetState(
@@ -151,56 +159,66 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(space = 15.dp, alignment = Alignment.Top)
                 ) {
-                    Text(
-                        buildAnnotatedString {
-                        withStyle(style = SpanStyle(
-                            fontFamily = manropeFamily,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 68.sp,
-                            letterSpacing = 0.sp,
+
+                    if (state.dateStart == null || state.dateEnd == null || state.percentage == null){
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .padding(top = 40.dp),
                             color = White
                         )
-                        ) {
-                            append(state.percentage?.take(2))
+                    } else {
+                        Text(
+                            text = buildAnnotatedString {
+                                withStyle(style = SpanStyle(
+                                    fontFamily = manropeFamily,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 68.sp,
+                                    letterSpacing = 0.sp,
+                                    color = White
+                                )
+                                ) {
+                                    append(state.percentage?.take(2) ?: " ")
+                                }
+                                append(state.percentage?.drop(2) ?: " ")
+                            },
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        ShowProgress(score = state.percentageDouble?.toInt() ?: 0, nearestEvent = eventAchieve.value - 3)
+
+                        Text(
+                            text = state.name ?: "",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = TransparentBlackCard
+                            )
+                        ){
+                            FirstCardContent(presenter, state)
                         }
-                        append(state.percentage?.drop(2))
-                    },
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    ShowProgress(score = state.percentageDouble?.toInt() ?: 0)
 
-                    Text(
-                        text = presenter.state.value.name ?: "Name not found",
-                        style = MaterialTheme.typography.bodySmall
-                    )
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = TransparentBlackCard
+                            )
+                        ) {
+                            SecondCardContent(nearestEvent)
+                        }
 
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = TransparentBlackCard
-                        )
-                    ){
-                        FirstCardContent(presenter, state)
+                        ButtonPreset(
+                            containerColor = White,
+                            contentColor = MaterialTheme.colorScheme.secondary,
+                            label = "Поделиться таймером"
+                        ) {
+
+                        }
                     }
 
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = TransparentBlackCard
-                        )
-                    ) {
-                        SecondCardContent()
-                    }
-
-                    ButtonPreset(
-                        containerColor = White,
-                        contentColor = MaterialTheme.colorScheme.secondary,
-                        label = "Поделиться таймером"
-                    ) {
-
-                    }
                 }
             }
         },
@@ -229,6 +247,10 @@ fun defaultPresenter() = object : HomeScreenPresenter{
             name = "Дмитрий"
         )
     )
+    override val nearestEvent: StateFlow<EventEntity?>
+        get() = MutableStateFlow(null)
+    override val eventAchieve: StateFlow<Int>
+        get() = MutableStateFlow(0)
 
     override fun countDate(dateEnd: LocalDateTime, dateStart: LocalDateTime) {
 
@@ -415,7 +437,7 @@ fun FirstCardContent(
                         color = White
                     )
                     ) {
-                        append(state.daysPast.toString())
+                        append(state.daysPast?.toString() ?: "-")
                     }
                     append(" дней")
                 },
@@ -435,7 +457,7 @@ fun FirstCardContent(
                         color = White
                     )
                     ) {
-                        append(state.hoursPast.toString())
+                        append(state.hoursPast?.toString() ?: "-")
                     }
                     append(" часов")
                 },
@@ -455,7 +477,7 @@ fun FirstCardContent(
                         color = White
                     )
                     ) {
-                        append(state.minutesPast.toString())
+                        append(state.minutesPast?.toString() ?: "-")
                     }
                     append(" минут")
                 },
@@ -473,7 +495,7 @@ fun FirstCardContent(
                         color = White
                     )
                     ) {
-                        append(state.secondsPast.toString())
+                        append(state.secondsPast?.toString() ?: "-")
                     }
                     append(" секунд")
                 },
@@ -509,7 +531,7 @@ fun FirstCardContent(
                         color = White
                     )
                     ) {
-                        append(state.daysLeft.toString())
+                        append(state.daysLeft?.toString() ?: "-")
                     }
                     append(" дней")
                 },
@@ -528,7 +550,7 @@ fun FirstCardContent(
                         color = White
                     )
                     ) {
-                        append(state.hoursLeft.toString())
+                        append(state.hoursLeft?.toString() ?: "-")
                     }
                     append(" часов")
                 },
@@ -548,7 +570,7 @@ fun FirstCardContent(
                         color = White
                     )
                     ) {
-                        append(state.minutesLeft.toString())
+                        append(state.minutesLeft?.toString() ?: "-")
                     }
                     append(" минут")
                 },
@@ -566,7 +588,7 @@ fun FirstCardContent(
                         color = White
                     )
                     ) {
-                        append(state.secondsLeft.toString())
+                        append(state.secondsLeft?.toString() ?: "-")
                     }
                     append(" секунд")
                 },
@@ -579,7 +601,9 @@ fun FirstCardContent(
 }
 
 @Composable
-fun SecondCardContent() {
+fun SecondCardContent(
+    nearestEvent: State<EventEntity?>
+) {
     Row (
         modifier = Modifier
             .fillMaxWidth()
@@ -602,7 +626,7 @@ fun SecondCardContent() {
                 Text(text = "Событие", style = MaterialTheme.typography.labelSmall)
             }
             Text(
-                text = "Через 300 дней лето",
+                text = nearestEvent.value?.title ?: "",
                 style = MaterialTheme.typography.bodySmall,
                 color = White
             )

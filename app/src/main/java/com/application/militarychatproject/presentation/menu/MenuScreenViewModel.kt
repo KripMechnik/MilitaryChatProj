@@ -28,7 +28,7 @@ class MenuScreenViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     fun checkAuthorized() {
-        _registered.value = isAuthorizedUseCase()
+        if (_registered.value != isAuthorizedUseCase()) _registered.value = isAuthorizedUseCase()
     }
     fun getSelfUser(){
         getSelfUserDataUseCase().onEach { result ->

@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.application.militarychatproject.R
+import com.application.militarychatproject.presentation.Validation
 import com.application.militarychatproject.presentation.login.LoginState
 import com.application.militarychatproject.presentation.presets.ButtonPreset
 import com.application.militarychatproject.presentation.presets.InputPreset
@@ -49,8 +50,28 @@ fun RegistrationScreen(
         mutableStateOf("")
     }
 
+    val isErrorNickname = remember {
+        derivedStateOf {
+            if (nickname.value.isBlank()){
+                false
+            } else {
+                !Validation.validateNickname(nickname.value)
+            }
+        }
+    }
+
     val password = remember {
         mutableStateOf("")
+    }
+
+    val isErrorPassword = remember {
+        derivedStateOf {
+            if (password.value.isBlank()){
+                false
+            } else {
+                !Validation.validatePassword(password.value)
+            }
+        }
     }
 
     val state = presenter.state.collectAsState()
@@ -81,7 +102,9 @@ fun RegistrationScreen(
         ){
             InputPreset(
                 label = stringResource(R.string.nick),
-                state = nickname
+                state = nickname,
+                isError = isErrorNickname.value,
+                errorText = "Ошибка. Длинна должна быть больше 4 и меньше 30. Никнейм не может содержать символы кроме букв английского алфавита, цифр и \"_\""
             )
             InputPreset(
                 label = stringResource(R.string.e_mail),
@@ -91,7 +114,9 @@ fun RegistrationScreen(
             )
             InputPreset(
                 label = stringResource(R.string.password),
-                state = password
+                state = password,
+                isError = isErrorPassword.value,
+                errorText = "Ошибка. Пароль должен быть длиннее 6 символов и короче 128"
             )
             ButtonPreset(
                 content = {
@@ -104,7 +129,6 @@ fun RegistrationScreen(
             ){
                 if (!isErrorEmail.value){
                     presenter.signUp(nickname.value, password.value, email.value)
-                    //presenter.navigateToOtp(email.value)
                 }
             }
             ButtonPreset(

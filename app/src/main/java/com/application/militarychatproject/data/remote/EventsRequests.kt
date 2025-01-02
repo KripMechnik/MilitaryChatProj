@@ -41,7 +41,7 @@ class EventsRequests @Inject constructor(
     //token -> yes
     suspend fun getAllEventsRequest() : ApiResponse<List<EventDTO>> {
         return authRequest(
-            path = basePath,
+            path = basePath.dropLast(1),
             method = HttpMethod.Get
         )
     }

@@ -5,9 +5,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ChatDTO(
-    val id: String,
+    val chatId: String,
     val imageLink: String?,
-    val isGroupChat: String,
+    val chatType: String,
     val isOnline: String,
     val lastMessageCreationTime: String?,
     val lastMessageSenderName: String?,
@@ -17,9 +17,9 @@ data class ChatDTO(
 )
 
 fun ChatDTO.toChatEntity() = ChatEntity (
-    id = this.id,
+    id = this.chatId,
     imageLink = this.imageLink,
-    isGroupChat = this.isGroupChat,
+    chatType = this.chatType,
     isOnline = this.isOnline,
     lastMessageCreationTime = this.lastMessageCreationTime,
     lastMessageSenderName = this.lastMessageSenderName,

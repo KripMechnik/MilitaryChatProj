@@ -1,5 +1,6 @@
 package com.application.militarychatproject.data.repository
 
+import com.application.militarychatproject.common.Resource
 import com.application.militarychatproject.data.remote.WebSocketRequests
 import com.application.militarychatproject.data.remote.dto.DeletedMessageWebSocketDTO
 import com.application.militarychatproject.data.remote.dto.EditedMessageWebSocketDTO
@@ -13,19 +14,11 @@ import javax.inject.Inject
 class WebSocketRepoImpl @Inject constructor (
     private val webSocketRequests: WebSocketRequests
 ) : WebSocketRepository {
-    override fun listenToDeletedMessage(url: String) : Flow<ApiResponse<DeletedMessageWebSocketDTO>> {
-        TODO("Not yet implemented")
+    override fun listen() : Flow<Resource<String>> {
+        return webSocketRequests.listen()
     }
 
-    override fun listenToNewMessages(url: String) : Flow<ApiResponse<NewMessageWebSocketDTO>> {
-        TODO("Not yet implemented")
-    }
-
-    override fun listenToReadMessages(url: String) : Flow<ApiResponse<ReadMessageWebSocketDTO>> {
-        TODO("Not yet implemented")
-    }
-
-    override fun listenToEditedMessages(url: String) : Flow<ApiResponse<EditedMessageWebSocketDTO>> {
-        TODO("Not yet implemented")
+    override suspend fun close(){
+        webSocketRequests.close()
     }
 }

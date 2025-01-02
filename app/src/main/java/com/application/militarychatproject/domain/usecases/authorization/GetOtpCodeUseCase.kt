@@ -14,7 +14,7 @@ class GetOtpCodeUseCase @Inject constructor(
     operator fun invoke(otpBody: GetOtpBodyEntity) : Flow<Resource<Unit>> = flow {
         emit(Resource.Loading())
         val response = authorizationRepository.getOtpRequest(otpBody)
-        if (response is ApiResponse.Success) emit(Resource.Success(data = response.data!!))
+        if (response is ApiResponse.Success) emit(Resource.Success(data = Unit))
         else emit(Resource.Error(message = response.errorMessage ?: "Unknown error", code = response.errorCode))
     }
 

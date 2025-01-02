@@ -4,6 +4,8 @@ import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.inject.Inject
 
 
@@ -44,7 +46,23 @@ class UserData @Inject constructor (
 
     fun checkAuthorized(): Boolean{
         loadToken()
-        return token.value.accessToken.isNotBlank() && token.value.refreshToken.isNotBlank() && token.value.accessTokenExpiresAt.toInt() != -1 && token.value.refreshTokenExpiresAt.toInt() != -1
+        if(token.value.accessToken.isNotBlank() && token.value.refreshToken.isNotBlank() && token.value.accessTokenExpiresAt.toInt() != -1 && token.value.refreshTokenExpiresAt.toInt() != -1){
+            val localDateTime = LocalDateTime.now()
+
+            val zoneId = ZoneId.systemDefault()
+
+            val instant = localDateTime.atZone(zoneId).toInstant()
+
+            val milliseconds = instant.toEpochMilli()
+            if (token.value.accessTokenExpiresAt <= milliseconds){
+                deleteToken()
+                return false
+            } else {
+                return true
+            }
+        } else {
+            return false
+        }
     }
 
     fun deleteToken(){

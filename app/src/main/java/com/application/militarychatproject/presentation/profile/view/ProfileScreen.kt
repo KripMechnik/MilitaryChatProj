@@ -17,10 +17,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -36,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.application.militarychatproject.R
 import com.application.militarychatproject.presentation.presets.ButtonPreset
+import com.application.militarychatproject.presentation.profile.DeleteAccState
 import com.application.militarychatproject.presentation.profile.LogoutState
 import com.application.militarychatproject.presentation.profile.ProfileScreenPresenter
 import com.application.militarychatproject.presentation.profile.ProfileState
@@ -79,6 +83,8 @@ fun ProfileScreen(
 
     val cropState by presenter.cropState.collectAsState()
 
+    val deleteAccState by presenter.deleteAccState.collectAsState()
+
     var loginTextField by remember(profileState) {
         mutableStateOf(profileState?.data?.nickname ?: "")
     }
@@ -89,6 +95,12 @@ fun ProfileScreen(
 
     LaunchedEffect(state) {
         if (state is LogoutState.Success){
+            presenter.navigateToMenu()
+        }
+    }
+
+    LaunchedEffect(deleteAccState) {
+        if (deleteAccState is DeleteAccState.Success){
             presenter.navigateToMenu()
         }
     }
@@ -127,6 +139,19 @@ fun ProfileScreen(
         localCropState.aspectLock = true
     }
 
+    var openAlertDialog by remember { mutableStateOf(false) }
+
+    var dialogTitle by remember {
+        mutableStateOf("")
+    }
+
+    var dialogText by remember {
+        mutableStateOf("")
+    }
+
+    var dialogAction by remember {
+        mutableStateOf({})
+    }
 
     val imagePicker = rememberImagePicker(onImage = { uri ->
         scope.launch {
@@ -138,6 +163,18 @@ fun ProfileScreen(
 
         }
     })
+
+    if (openAlertDialog){
+        ConfirmDialog(
+            dialogTitle = dialogTitle,
+            dialogText = dialogText,
+            onDismissRequest = {openAlertDialog = false},
+            onConfirmation = {
+                openAlertDialog = false
+                dialogAction()
+            }
+        )
+    }
 
     Column (
         modifier = Modifier
@@ -172,7 +209,8 @@ fun ProfileScreen(
                     },
                 model = profileState?.data?.avatarLink,
                 contentDescription = "Avatar image",
-                error = painterResource(R.drawable.no_avatar)
+                error = painterResource(R.drawable.no_avatar),
+                placeholder = ColorPainter(MaterialTheme.colorScheme.onPrimaryContainer)
             )
             Icon(
                 modifier = Modifier
@@ -266,7 +304,12 @@ fun ProfileScreen(
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
-            ) { }
+            ) {
+                dialogAction = { presenter.delete() }
+                dialogTitle = "Удалить аккаунт?"
+                dialogText = "Вы уверены, что хотите удалить аккаунт?"
+                openAlertDialog = true
+            }
 
             ButtonPreset(
                 contentColor = MaterialTheme.colorScheme.primary,
@@ -282,9 +325,62 @@ fun ProfileScreen(
                     }
                 }
             ) {
-                presenter.logout()
+                dialogAction = { presenter.logout() }
+                dialogTitle = "Выйти из аккаунта?"
+                dialogText = "Вы уверены, что хотите выйти из аккаунта?"
+                openAlertDialog = true
             }
         }
+    }
+}
+
+@Composable
+fun ConfirmDialog(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String
+) {
+    AlertDialog(
+        title = {
+            Text(text = dialogTitle, style = MaterialTheme.typography.titleLarge)
+        },
+        text = {
+            Text(text = dialogText, style = MaterialTheme.typography.bodySmall)
+        },
+        onDismissRequest = onDismissRequest,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("Подтвердить", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+            }
+        },
+
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Отменить", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onBackground)
+            }
+        }
+    )
+}
+
+@Preview
+@Composable
+private fun ConfirmDialogPreview() {
+    MilitaryChatProjectTheme {
+        ConfirmDialog(
+            onDismissRequest = {},
+            onConfirmation = {},
+            dialogTitle = "Удалить аккаунт?",
+            dialogText = "Вы уверены, что хотите удалить аккаунт?"
+        )
     }
 }
 
@@ -306,6 +402,9 @@ private fun ProfileScreenPreview() {
         override val sendCropState: StateFlow<SendCropState?>
             get() = MutableStateFlow(null)
 
+        override val deleteAccState: StateFlow<DeleteAccState?>
+            get() = MutableStateFlow(null)
+
         override fun logout() {
 
         }
@@ -323,6 +422,10 @@ private fun ProfileScreenPreview() {
         }
 
         override fun getPhoto() {
+
+        }
+
+        override fun delete() {
 
         }
     }
