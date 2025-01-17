@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MilitaryChatProject</string>
+    <string name="app_name">ДМБ Таймер</string>
     <string name="to_register">Зарегистрироваться</string>
     <string name="change_background">Поменять фон</string>
     <string name="options">Настройки</string>

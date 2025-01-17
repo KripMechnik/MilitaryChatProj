@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    namespace = "com.application.militarychatproject"
+    namespace = "com.application.timer_dmb"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.application.militarychatproject"
-        minSdk = 29
+        applicationId = "com.application.timer_dmb"
+        minSdk = 27
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -23,13 +23,27 @@ android {
         }
     }
 
+
+
     buildTypes {
-        release {
+
+        debug {
             isMinifyEnabled = false
+            isDebuggable = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+
+        release {
+            isMinifyEnabled = true
+            isDebuggable = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -115,4 +129,7 @@ dependencies {
     //Room
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
+
+    //CaptureImage
+    implementation ("dev.shreyaspatil:capturable:2.1.0")
 }
