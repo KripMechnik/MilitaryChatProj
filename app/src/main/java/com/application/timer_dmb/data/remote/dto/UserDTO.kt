@@ -9,11 +9,15 @@ data class UserDTO(
     val id: Int,
     val name: String,
     val nickname: String,
+    val userType: String,
+    val isAdmin: Boolean
 )
 
 fun UserDTO.toUserEntity() = UserEntity(
     avatarImageName = this.avatarImageName,
     id = this.id,
     name = this.name,
-    nickname = this.nickname
+    nickname = this.nickname,
+    isAdmin = this.isAdmin,
+    userType = this.userType
 )

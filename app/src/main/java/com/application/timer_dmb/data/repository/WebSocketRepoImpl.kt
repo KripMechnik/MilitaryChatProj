@@ -13,7 +13,7 @@ class WebSocketRepoImpl @Inject constructor (
         return webSocketRequests.listen(authorized)
     }
 
-    override suspend fun close(){
-        webSocketRequests.close()
+    override suspend fun close(): Boolean{
+        return webSocketRequests.close()
     }
 }

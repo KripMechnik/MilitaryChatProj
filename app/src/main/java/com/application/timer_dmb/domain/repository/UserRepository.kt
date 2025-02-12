@@ -10,6 +10,8 @@ interface UserRepository {
 
     suspend fun deletePhoto(): ApiResponse<Unit>
 
+    suspend fun banUser(userId: String): ApiResponse<Unit>
+
     suspend fun getPhoto(): ApiResponse<PhotoDTO>
 
     suspend fun getSelfUser(): ApiResponse<SelfUserDTO>

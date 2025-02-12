@@ -57,6 +57,10 @@ class ChatScreenPresenterImpl(
         viewModel.setBitmap(bitmap)
     }
 
+    override fun banUser(userId: String) {
+        viewModel.banUser(userId)
+    }
+
     override fun navigateUp() {
 
         navController.navigate(MESSAGES_SCREEN_ROUTE){
@@ -82,6 +86,14 @@ class ChatScreenPresenterImpl(
 
     override fun deleteMessage(messageId: String) {
         viewModel.deleteMessage(messageId)
+    }
+
+    override fun listenToSocket() {
+        viewModel.listenToSocket()
+    }
+
+    override fun close() {
+        viewModel.close()
     }
 
     override fun sendTimer() {

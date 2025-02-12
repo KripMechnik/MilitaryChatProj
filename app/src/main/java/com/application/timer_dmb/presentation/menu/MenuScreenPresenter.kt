@@ -9,6 +9,8 @@ interface MenuScreenPresenter {
 
     val registered: StateFlow<Boolean>
 
+    fun logoutWhenNoConnection()
+
     fun navigateToRegister()
 
     fun navigateToProfile()

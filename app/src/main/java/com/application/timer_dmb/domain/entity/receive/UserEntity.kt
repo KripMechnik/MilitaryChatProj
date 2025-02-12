@@ -4,5 +4,7 @@ data class UserEntity (
     val id: Int?,
     val name: String,
     val nickname: String,
-    val avatarImageName: String? = null
+    val avatarImageName: String? = null,
+    val isAdmin: Boolean,
+    val userType: String
 )

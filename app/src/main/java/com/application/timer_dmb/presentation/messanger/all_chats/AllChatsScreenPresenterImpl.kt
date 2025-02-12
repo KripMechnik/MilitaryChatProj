@@ -27,6 +27,14 @@ class AllChatsScreenPresenterImpl(
         viewModel.getChats()
     }
 
+    override fun listenToSocket() {
+        viewModel.listenToSocket()
+    }
+
+    override fun close() {
+        viewModel.close()
+    }
+
     override fun onNavigating() {
         viewModel.onNavigating()
     }

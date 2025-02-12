@@ -155,7 +155,7 @@ class CalendarScreenViewModel @Inject constructor(
             }
         } else {
             val newEvent = NewEventEntity(newTitle, dateAsMillis)
-            updateEventUseCase(id.toString(), newEvent).onEach {result ->
+            updateEventUseCase(id, newEvent).onEach { result ->
                 when(result){
                     is Resource.Error -> {
                         _updateEventState.value = UpdateEventState.Error(

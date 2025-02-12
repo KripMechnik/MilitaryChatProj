@@ -80,6 +80,7 @@ fun AddEventDialog(
                 }
                 ButtonPreset(
                     contentColor = White,
+                    enabled = dateStart.value.isNotBlank(),
                     containerColor = MaterialTheme.colorScheme.secondary,
                     content = {
                         Text(

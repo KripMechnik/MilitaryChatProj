@@ -12,7 +12,7 @@ class WebSocketRequests @Inject constructor(
         return client.listenToSocket(authorized)
     }
 
-    suspend fun close() {
-        client.close()
+    suspend fun close(): Boolean {
+        return client.close()
     }
 }

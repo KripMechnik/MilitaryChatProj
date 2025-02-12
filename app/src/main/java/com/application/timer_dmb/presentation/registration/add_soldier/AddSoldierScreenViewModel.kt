@@ -16,12 +16,16 @@ class AddSoldierScreenViewModel @Inject constructor(
     private val createBaseEventsUseCase: CreateBaseEventsUseCase
 ): ViewModel() {
 
+
+
     private val _addedEvents = MutableStateFlow(false)
     val addedEvents = _addedEvents.asStateFlow()
 
     fun saveData(dateStart: String, dateEnd: String, name: String){
-        createEvents(dateStart, dateEnd)
-        addSoldierUseCase(dateStart, dateEnd, name)
+        viewModelScope.launch {
+            createEvents(dateStart, dateEnd)
+            addSoldierUseCase(dateStart, dateEnd, name)
+        }
     }
 
     private fun createEvents(dateStart: String, dateEnd: String){

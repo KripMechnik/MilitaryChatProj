@@ -16,7 +16,6 @@ import com.application.timer_dmb.domain.entity.receive.EditedMessageWebSocketEnt
 import com.application.timer_dmb.domain.entity.receive.MessageEntity
 import com.application.timer_dmb.domain.entity.receive.NewMessageWebSocketEntity
 import com.application.timer_dmb.domain.entity.send.UpdatedMessageEntity
-import com.application.timer_dmb.domain.usecases.authorization.GetSoldierDataUseCase
 import com.application.timer_dmb.domain.usecases.authorization.IsAuthorizedUseCase
 import com.application.timer_dmb.domain.usecases.messages.DeleteMessageUseCase
 import com.application.timer_dmb.domain.usecases.messages.GetListOfMessagesUnregisteredUseCase
@@ -25,7 +24,9 @@ import com.application.timer_dmb.domain.usecases.messages.ReadMessageUseCase
 import com.application.timer_dmb.domain.usecases.messages.SendMessageUseCase
 import com.application.timer_dmb.domain.usecases.messages.UpdateMessageUseCase
 import com.application.timer_dmb.domain.usecases.timer.GetTimerDataUseCase
+import com.application.timer_dmb.domain.usecases.user.BanUserUseCase
 import com.application.timer_dmb.domain.usecases.user.GetSelfUserDataUseCase
+import com.application.timer_dmb.domain.usecases.web_socket.CloseSessionUseCase
 import com.application.timer_dmb.domain.usecases.web_socket.ListenToSocketUseCase
 import com.application.timer_dmb.presentation.home.BackgroundState
 import com.application.timer_dmb.presentation.home.HomeState
@@ -58,11 +59,12 @@ class ChatScreenViewModel @Inject constructor(
     private val readMessageUseCase: ReadMessageUseCase,
     private val updateMessageUseCase: UpdateMessageUseCase,
     private val deleteMessageUseCase: DeleteMessageUseCase,
-    private val getSoldierDataUseCase: GetSoldierDataUseCase,
     private val getSelfUserDataUseCase: GetSelfUserDataUseCase,
-    private val isAuthorizedUseCase: IsAuthorizedUseCase,
+    private val closeSessionUseCase: CloseSessionUseCase,
+    isAuthorizedUseCase: IsAuthorizedUseCase,
     private val getTimerDataUseCase: GetTimerDataUseCase,
     private val getListOfMessagesUnregisteredUseCase: GetListOfMessagesUnregisteredUseCase,
+    private val banUserUseCase: BanUserUseCase,
     @ApplicationContext private val context: Context,
     private val json: Json,
     savedStateHandle: SavedStateHandle
@@ -90,6 +92,9 @@ class ChatScreenViewModel @Inject constructor(
     private val _replyToId = MutableStateFlow("")
     val replyToId = _replyToId.asStateFlow()
 
+    private val _banUserState = MutableStateFlow<BanUserState?>(null)
+    val banUserState = _banUserState.asStateFlow()
+
     private val lastMessageId = MutableStateFlow("")
 
     private val _messagesState = MutableStateFlow<MessagesState?>(null)
@@ -110,13 +115,29 @@ class ChatScreenViewModel @Inject constructor(
             readMessages()
             getImageFromCache()
         }
-        listenToSocket()
         getChatMessages()
     }
 
     fun setBitmap(bitmap: ImageBitmap){
         _shareImageBitmap.value = bitmap
         Log.i("bitmap_share", _shareImageBitmap.value.toString())
+    }
+
+    fun banUser(userId: String){
+        banUserUseCase(userId).onEach {result ->
+            when(result){
+                is Resource.Error -> {
+                    _banUserState.value = BanUserState.Error(message = result.message ?: "Unknown error", code = result.code)
+                    Log.e("ban_user", result.code.toString() + " " + result.message)
+                }
+                is Resource.Loading -> {
+                    _banUserState.value = BanUserState.Loading()
+                }
+                is Resource.Success -> {
+                    _banUserState.value = BanUserState.Success()
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 
     private fun getImageFromCache(){
@@ -174,7 +195,7 @@ class ChatScreenViewModel @Inject constructor(
         }
     }
 
-    private fun listenToSocket(){
+    fun listenToSocket(){
 
         if (_authorized.value){
             listenToSocketUseCase(true).onEach { result ->
@@ -257,6 +278,12 @@ class ChatScreenViewModel @Inject constructor(
         }
     }
 
+    fun close(){
+        viewModelScope.launch {
+            closeSessionUseCase()
+        }
+    }
+
     fun setReplyToId(newId: String){
         _replyToId.value = newId
     }
@@ -271,7 +298,10 @@ class ChatScreenViewModel @Inject constructor(
                         Log.e("menu", result.code.toString() + " " + result.message)
                     }
                     is Resource.Loading -> _profileState.value = ProfileState.Loading()
-                    is Resource.Success -> _profileState.value = ProfileState.Success(data = result.data!!)
+                    is Resource.Success -> {
+                        _profileState.value = ProfileState.Success(data = result.data!!)
+                        Log.i("admin", result.data.isAdmin.toString())
+                    }
                 }
             }.launchIn(viewModelScope)
         }
@@ -346,11 +376,9 @@ class ChatScreenViewModel @Inject constructor(
                 }
                 is Resource.Success -> {
 
-                    listState.forEachIndexed {index,  item->
-                        if (item.messageId == messageId){
-                            listState[index] = item.copy(deleted = true)
-                        }
-                    }
+
+
+                    listState.removeIf { it.messageId == messageId }
                     _sendState.value = SendState.Success()
                 }
             }
@@ -435,7 +463,7 @@ class ChatScreenViewModel @Inject constructor(
                                 dateEnd = localDateTimeEnd
                             )
                         }
-                        countDate(state.value.dateEnd!!, state.value.dateStart!!)
+                        countDate(_state.value.dateEnd!!, _state.value.dateStart!!)
                     }
                 }
 
@@ -450,10 +478,29 @@ class ChatScreenViewModel @Inject constructor(
 
             val durationPast = Duration.between(dateStart, currentDate)
 
+
+
             val daysPast = durationPast.toDays()
             val hoursPast = durationPast.toHours() % 24
             val minutesPast = durationPast.toMinutes() % 60
             val secondsPast = durationPast.seconds % 60
+
+            if (currentDate >= dateEnd){
+                _state.value = _state.value.copy(
+                    finished = true,
+                    daysLeft = 0,
+                    hoursLeft = 0,
+                    minutesLeft = 0,
+                    secondsLeft = 0,
+                    daysPast = daysPast,
+                    hoursPast = 0,
+                    minutesPast = 0,
+                    secondsPast = 0,
+                    percentage = "100,000000%",
+                    percentageDouble = 100.toDouble()
+                )
+                return
+            }
 
             val daysLeft = durationLeft.toDays()
             val hoursLeft = durationLeft.toHours() % 24
@@ -492,6 +539,12 @@ class ChatScreenViewModel @Inject constructor(
         viewModelScope.cancel()
         super.onCleared()
     }
+}
+
+sealed class BanUserState(val data: Unit? = null, val message: String? = null, val code: Int? = null){
+    class Success : BanUserState()
+    class Error(message: String, code: Int?) : BanUserState(message = message, code = code)
+    class Loading : BanUserState()
 }
 
 sealed class MessagesState(val data: List<MessageEntity>? = null, val message: String? = null, val code: Int? = null){

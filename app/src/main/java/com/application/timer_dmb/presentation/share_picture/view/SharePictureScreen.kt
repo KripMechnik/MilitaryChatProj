@@ -241,7 +241,20 @@ fun SharePictureScreen(
                     Button(
                         modifier = Modifier
                             .height(60.dp),
-                        onClick = {},
+                        onClick = {
+                            scope.launch {
+                                val currentBitmap = captureController.captureAsync().await()
+                                try {
+                                    val uri = presenter.getImage(currentBitmap)
+                                    uri?.let {
+                                        val intent = createIntent(uri, "com.instagram.android")
+                                        context.startActivity(Intent.createChooser(intent, "Share via"))
+                                    }
+                                } catch (e: Throwable) {
+                                    e.printStackTrace()
+                                }
+                            }
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.onPrimaryContainer
                         ),
@@ -375,7 +388,11 @@ fun createIntent(uri: Uri, app: String): Intent {
     val shareIntent = Intent(Intent.ACTION_SEND)
     shareIntent.setType("image/png")
     shareIntent.putExtra(Intent.EXTRA_STREAM, uri)
-    shareIntent.putExtra(Intent.EXTRA_TEXT, "Мне осталось совсем немного до дембеля!\nЗайди в приложение ДМБ и создай свой таймер: https://duty-timer.sunfesty.ru/privacy-policy"); // Add the text
+    shareIntent.putExtra(Intent.EXTRA_TEXT, "Будь в курсе сколько до ДМБ с нами!\n" +
+            "\n" +
+            "App Store: https://shorturl.at/MVmDw\n" +
+            "\n" +
+            "Google Play: https://shorturl.at/OC9QK\n"); // Add the text
     shareIntent.setPackage(app) // Optional: Opens Telegram directly
 
     shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

@@ -47,6 +47,17 @@ class UserRequests @Inject constructor(
     }
 
     //token -> yes
+    suspend fun banUser(
+        userId: String
+    ) : ApiResponse<Unit>{
+        return authRequest(
+            method = HttpMethod.Put,
+            query = userId,
+            path = basePath + "ban-user/"
+        )
+    }
+
+    //token -> yes
     suspend fun setUserType(
         userType: UserTypeEntity
     ) : ApiResponse<Unit>{

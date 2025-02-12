@@ -20,8 +20,7 @@ import javax.inject.Named
 
 class AuthorizationRequests @Inject constructor(
     private val baseRequest: BaseRequest,
-    private val authRequest: AuthRequest,
-    @Named("AuthClient") private val baseClient: HttpClient,
+    private val authRequest: AuthRequest
 ) {
 
     private val basePath = "/auth/"
@@ -41,7 +40,7 @@ class AuthorizationRequests @Inject constructor(
     suspend fun signInRequest(
         signedInUser: SignedInUserEntity
     ) : ApiResponse<TokenDTO> {
-        invalidateAuthTokens()
+        authRequest.invalidateTokens()
         return baseRequest(
             method = HttpMethod.Post,
             body = signedInUser,
@@ -55,7 +54,7 @@ class AuthorizationRequests @Inject constructor(
             method = HttpMethod.Post,
             path = basePath + "log-out"
         )
-        invalidateAuthTokens()
+        authRequest.invalidateTokens()
         return result
     }
 
@@ -65,7 +64,7 @@ class AuthorizationRequests @Inject constructor(
             method = HttpMethod.Delete,
             path = basePath
         )
-        invalidateAuthTokens()
+        authRequest.invalidateTokens()
         return result
     }
 
@@ -83,7 +82,7 @@ class AuthorizationRequests @Inject constructor(
     suspend fun sendOtpRequest(
         otpBody: SendOtpBodyEntity
     ) : ApiResponse<TokenDTO> {
-        invalidateAuthTokens()
+        authRequest.invalidateTokens()
         return baseRequest(
             method = HttpMethod.Post,
             path = basePath + "verify-email",
@@ -98,11 +97,6 @@ class AuthorizationRequests @Inject constructor(
             path = basePath + "send-password-reset-otp",
             body = otpBody
         )
-    }
-
-    private fun invalidateAuthTokens() {
-        baseClient.plugin(Auth).providers.filterIsInstance<BearerAuthProvider>()
-            .first().clearToken()
     }
 
     suspend fun sendOtpForResetPassword(

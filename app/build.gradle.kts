@@ -14,8 +14,8 @@ android {
         applicationId = "com.application.timer_dmb"
         minSdk = 27
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.0.0"
+        versionCode = 6
+        versionName = "1.1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -30,6 +30,7 @@ android {
         debug {
             isMinifyEnabled = false
             isDebuggable = true
+            buildConfigField("String", "BASE_URL", "\"93.183.82.224\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -39,6 +40,7 @@ android {
         release {
             isMinifyEnabled = true
             isDebuggable = false
+            buildConfigField("String", "BASE_URL", "\"5.23.52.32\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -55,6 +57,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -89,6 +92,7 @@ dependencies {
     ksp (libs.hilt.android.compiler)
     ksp (libs.androidx.hilt.compiler)
     implementation (libs.androidx.hilt.navigation.compose)
+    implementation("androidx.hilt:hilt-work:1.2.0")
 
     //ktor
     implementation(libs.ktor.client.core)
@@ -132,4 +136,12 @@ dependencies {
 
     //CaptureImage
     implementation ("dev.shreyaspatil:capturable:2.1.0")
+
+    //Widgets
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material)
+
+    //Workers
+    implementation(libs.androidx.work.runtime.ktx)
+
 }

@@ -170,7 +170,7 @@ fun SharePicture(
                         }
 
 
-                        ShowProgress(score = if (percentage.isNotBlank()) percentage.takeWhile { it != ',' }.toInt() else 15, nearestEvent =  101)
+                        ShowProgress(score = if (percentage.isNotBlank()) percentage.takeWhile { it != ',' }.toInt() else 0, nearestEvent =  101)
                     }
                 }
             }

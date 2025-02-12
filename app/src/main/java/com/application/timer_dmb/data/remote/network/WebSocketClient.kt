@@ -28,6 +28,7 @@ class WebSocketClient @Inject constructor(
 
     private var session: WebSocketSession? = null
 
+
     fun listenToSocket(authorized: Boolean) : Flow<Resource<String>> {
 
         return callbackFlow {
@@ -70,7 +71,6 @@ class WebSocketClient @Inject constructor(
                                 send(Resource.Error(code = -1, message = "Serialization error"))
                             }
                         }
-
                     }
             } ?: run {
                 Log.i("webSocket_client", "No_session")
@@ -89,9 +89,12 @@ class WebSocketClient @Inject constructor(
         }
     }
 
-    suspend fun close(){
+    suspend fun close(): Boolean{
+
+        val res = session != null
         session?.close()
         session = null
         Log.i("webSocket_session", "closed")
+        return res
     }
 }

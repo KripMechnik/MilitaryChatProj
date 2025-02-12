@@ -19,6 +19,11 @@ class MenuScreenPresenterImpl(
     override val registered: StateFlow<Boolean>
         get() = viewModel.registered
 
+    override fun logoutWhenNoConnection() {
+        viewModel.logoutWhenNoConnection()
+        navController.popBackStack()
+    }
+
     override fun navigateToRegister() {
         navController.navigate(REGISTRATION_SCREEN_ROUTE)
     }

@@ -37,11 +37,26 @@
             android:authorities="com.application.timer_dmb.provider"
             android:exported="false"
             android:grantUriPermissions="true">
-            <!-- ressource file to create -->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
+
+        <receiver android:name=".presentation.widget.DmbWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/dmb_widget_info"/>
+
+        </receiver>
+        
+        <provider
+            android:authorities="${applicationId}.androidx-startup"
+            android:name="androidx.startup.InitializationProvider"
+            tools:node="remove"/>
 
     </application>
 

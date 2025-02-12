@@ -41,6 +41,7 @@ import com.application.timer_dmb.domain.usecases.authorization.GetSoldierDataUse
 import com.application.timer_dmb.domain.usecases.authorization.IsAddedSoldierUseCase
 import com.application.timer_dmb.domain.usecases.authorization.IsAuthorizedUseCase
 import com.application.timer_dmb.domain.usecases.authorization.LogoutUseCase
+import com.application.timer_dmb.domain.usecases.authorization.LogoutWhenNoConnectionUseCase
 import com.application.timer_dmb.domain.usecases.authorization.RegistrationUseCase
 import com.application.timer_dmb.domain.usecases.authorization.ResetPasswordUseCase
 import com.application.timer_dmb.domain.usecases.authorization.SaveTokenUseCase
@@ -68,6 +69,7 @@ import com.application.timer_dmb.domain.usecases.messages.SendMessageUseCase
 import com.application.timer_dmb.domain.usecases.messages.UpdateMessageUseCase
 import com.application.timer_dmb.domain.usecases.timer.GetTimerDataUseCase
 import com.application.timer_dmb.domain.usecases.timer.UpdateTimerUseCase
+import com.application.timer_dmb.domain.usecases.user.BanUserUseCase
 import com.application.timer_dmb.domain.usecases.user.DeleteBackgroundUseCase
 import com.application.timer_dmb.domain.usecases.user.GetPhotoUseCase
 import com.application.timer_dmb.domain.usecases.user.GetSelfUserDataUseCase
@@ -149,7 +151,6 @@ object AppModule {
         install(HttpTimeout){
             connectTimeoutMillis = 10_000L
             requestTimeoutMillis = 10_000L
-            socketTimeoutMillis = 10_000L
         }
 
         install(Auth){
@@ -212,7 +213,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthorizationRequests(baseRequest: BaseRequest, authRequest: AuthRequest, @Named("AuthClient") client: HttpClient) = AuthorizationRequests(baseRequest, authRequest, client)
+    fun provideAuthorizationRequests(baseRequest: BaseRequest, authRequest: AuthRequest, @Named("AuthClient") client: HttpClient) = AuthorizationRequests(baseRequest, authRequest)
 
     @Provides
     @Singleton
@@ -441,6 +442,14 @@ object AppModule {
     @Provides
     @Singleton
     fun provideGetListOfMessagesUnregisteredUseCase(messageRepository: MessageRepository) = GetListOfMessagesUnregisteredUseCase(messageRepository)
+
+    @Provides
+    @Singleton
+    fun provideBanUserUseCase(userRepository: UserRepository) = BanUserUseCase(userRepository)
+
+    @Provides
+    @Singleton
+    fun provideLogoutWhenNoConnectionUseCase(userData: UserData, authRequest: AuthRequest) = LogoutWhenNoConnectionUseCase(userData, authRequest)
 
     //Database
     @Provides

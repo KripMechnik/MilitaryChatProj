@@ -17,6 +17,10 @@ class UserRepoImpl @Inject constructor (
         return userRequests.deletePhotoRequest()
     }
 
+    override suspend fun banUser(userId: String): ApiResponse<Unit> {
+        return userRequests.banUser(userId)
+    }
+
     override suspend fun getPhoto(): ApiResponse<PhotoDTO> {
         return userRequests.getPhotoRequest()
     }

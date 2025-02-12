@@ -11,9 +11,11 @@ import com.application.timer_dmb.common.Resource
 import com.application.timer_dmb.domain.entity.receive.EventEntity
 import com.application.timer_dmb.domain.usecases.authorization.GetSoldierDataUseCase
 import com.application.timer_dmb.domain.usecases.authorization.IsAuthorizedUseCase
+import com.application.timer_dmb.domain.usecases.authorization.UpdateSoldierUseCase
 import com.application.timer_dmb.domain.usecases.events.GetAllEventsFromDatabaseUseCase
 import com.application.timer_dmb.domain.usecases.events.GetAllEventsUseCase
 import com.application.timer_dmb.domain.usecases.timer.GetTimerDataUseCase
+import com.application.timer_dmb.presentation.widget.DmbWidget
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +42,7 @@ class HomeScreenViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val getAllEventsFromDatabaseUseCase: GetAllEventsFromDatabaseUseCase,
     private val getAllEventsUseCase: GetAllEventsUseCase,
+    private val updateSoldierUseCase: UpdateSoldierUseCase,
     private val isAuthorizedUseCase: IsAuthorizedUseCase,
     private val getTimerDataUseCase: GetTimerDataUseCase
 ) : ViewModel() {
@@ -146,6 +149,16 @@ class HomeScreenViewModel @Inject constructor(
                     dateEnd = dateEndAsDate
                 )
             }
+
+            val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+            val formattedDateTimeStart = dateStartAsDate.format(formatter)
+            val formattedDateTimeEnd = dateEndAsDate.format(formatter)
+
+            viewModelScope.launch(Dispatchers.IO) {
+                updateSoldierUseCase(formattedDateTimeStart, formattedDateTimeEnd)
+            }
+
+
         } else {
             getTimerDataUseCase().onEach { result ->
                 when(result){
@@ -165,7 +178,14 @@ class HomeScreenViewModel @Inject constructor(
                                 dateStart = localDateTimeStart,
                                 dateEnd = localDateTimeEnd
                             )
+
                         }
+
+                        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                        val formattedDateTimeStart = localDateTimeStart.format(formatter)
+                        val formattedDateTimeEnd = localDateTimeEnd.format(formatter)
+
+                        updateSoldierUseCase(formattedDateTimeStart, formattedDateTimeEnd)
                     }
                 }
 
@@ -178,8 +198,8 @@ class HomeScreenViewModel @Inject constructor(
     fun getImageFromCache(){
         viewModelScope.launch(Dispatchers.IO) {
             val file = File(context.cacheDir, "background_image.png")
-            Log.i("Uri", Uri.fromFile(file).toString())
             if (file.exists()) {
+                Log.i("Uri", Uri.fromFile(file).toString())
                 val data = BitmapFactory.decodeFile(file.absolutePath)
                 if (data != _background.value?.data){
                     _background.value = BackgroundState.Success(data = BitmapFactory.decodeFile(file.absolutePath))

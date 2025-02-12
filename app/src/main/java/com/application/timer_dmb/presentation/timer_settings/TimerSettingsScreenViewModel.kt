@@ -54,8 +54,9 @@ class TimerSettingsScreenViewModel @Inject constructor(
     }
 
     fun updateSoldierData(){
-        updateSoldierUseCase(_timeState.value.dateStart, _timeState.value.dateEnd)
+
         viewModelScope.launch {
+            updateSoldierUseCase(_timeState.value.dateStart, _timeState.value.dateEnd)
             updateBaseEventsUseCase(_timeState.value.dateStart, _timeState.value.dateEnd)
         }
         if (isAuthorizedUseCase()) {

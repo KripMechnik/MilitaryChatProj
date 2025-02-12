@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_gravity="center"
+    android:layout_height="match_parent">
+
+    <com.application.timer_dmb.presentation.widget.CircularProgressBar
+        android:layout_width="match_parent"
+        app:cpb_progress = "99"
+        app:cpb_progressbar_width="30dp"
+        app:cpb_progressbar_color="@color/teal_200"
+        app:cpb_background_progressbar_width="29dp"
+        app:cpb_round_border="true"
+        android:layout_height="match_parent"/>
+</FrameLayout>

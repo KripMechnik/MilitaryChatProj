@@ -9,7 +9,8 @@ data class SelfUserDTO(
     val nickname: String,
     val login: String,
     val avatarLink: String?,
-    val userType: String
+    val userType: String,
+    val isAdmin: Boolean,
 )
 
 fun SelfUserDTO.toSelfUserEntity() = SelfUserEntity(
@@ -17,5 +18,6 @@ fun SelfUserDTO.toSelfUserEntity() = SelfUserEntity(
     id = this.id,
     login = this.login,
     nickname = this.nickname,
-    userType = this.userType
+    userType = this.userType,
+    isAdmin = this.isAdmin
 )

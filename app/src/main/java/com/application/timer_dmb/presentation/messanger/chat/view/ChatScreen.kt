@@ -2,6 +2,9 @@ package com.application.timer_dmb.presentation.messanger.chat.view
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,6 +32,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -46,6 +51,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -70,6 +76,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
@@ -82,6 +90,9 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import coil3.compose.AsyncImage
 import com.application.timer_dmb.R
 import com.application.timer_dmb.domain.entity.receive.MessageEntity
@@ -106,7 +117,8 @@ import kotlinx.coroutines.launch
 data class MenuItem(
     val title: String,
     val icon: Painter,
-    val forOthers: Boolean = true
+    val forOthers: Boolean = true,
+    val forAdmin: Boolean = false
 )
 
 
@@ -120,6 +132,23 @@ fun ChatScreen(
 ) {
 
     val scope = rememberCoroutineScope()
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> presenter.listenToSocket()
+                Lifecycle.Event.ON_STOP -> presenter.close()
+                else -> {}
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     val dataState = presenter.state.collectAsState()
 
@@ -146,7 +175,8 @@ fun ChatScreen(
         MenuItem(
             title = "Удалить",
             icon = painterResource(R.drawable.delete),
-            forOthers = false
+            forOthers = false,
+            forAdmin = true
         ),
         MenuItem(
             title = "Редактировать",
@@ -156,6 +186,12 @@ fun ChatScreen(
         MenuItem(
             title = "Ответить",
             icon = painterResource(R.drawable.reply)
+        ),
+        MenuItem(
+            title = "Забанить",
+            icon = rememberVectorPainter(Icons.Default.Close),
+            forAdmin = true,
+            forOthers = false
         )
     )
 
@@ -199,6 +235,15 @@ fun ChatScreen(
                 if (messagesState.value !is MessagesState.Loading) presenter.getMessages()
             }
 
+    }
+
+
+    if (listState.isNotEmpty()){
+        LaunchedEffect(listState[0]) {
+            if (chatListState.firstVisibleItemIndex == 1){
+                chatListState.scrollToItem(0)
+            }
+        }
     }
 
     if (showSendImageDialog){
@@ -267,6 +312,8 @@ fun ChatScreen(
     }
 
     Scaffold(
+        modifier = Modifier
+            .navigationBarsPadding(),
         topBar = {
             Column {
                 TopAppBar(
@@ -335,8 +382,7 @@ fun ChatScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 reverseLayout = true,
                 state = chatListState
@@ -344,34 +390,32 @@ fun ChatScreen(
 
 
 
-                items(listState){ message ->
-                    AnimatedVisibility(
-                        visible = !message.deleted,
-
-                    ) {
-                        MessageItem(
-                            messageId = message.messageId,
-                            isSelfMessage = message.isSender,
-                            images = message.attachmentLinks,
-                            sendMessageAuthorName = message.senderNickname,
-                            sendMessageText = message.text,
-                            sendMessageTime = message.creationTime,
-                            url = message.senderAvatarLink ?: "",
-                            isRead = message.isRead,
-                            isLastMessagePerRow = message.isLastInRow,
-                            menuItemsList = listOfMenuItems,
-                            repliedAuthor = message.repliedMessageSender ?: "",
-                            repliedText = message.repliedMessageText ?: "",
-                            replyId = message.repliedMessageId ?: "",
-                            replyingText = replyingText,
-                            replyingSender = replyingSender,
-                            presenter = presenter,
-                            messageText = messageText,
-                            isEdited = message.isEdited
-                        )
-                    }
-
-
+                items(listState, key = { it.messageId }){ message ->
+                    MessageItem(
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .animateItem(),
+                        profileState = profileState,
+                        messageId = message.messageId,
+                        isSelfMessage = message.isSender,
+                        images = message.attachmentLinks,
+                        sendMessageAuthorName = message.senderNickname,
+                        sendMessageText = message.text,
+                        sendMessageTime = message.creationTime,
+                        url = message.senderAvatarLink ?: "",
+                        isRead = message.isRead,
+                        isLastMessagePerRow = message.isLastInRow,
+                        menuItemsList = listOfMenuItems,
+                        repliedAuthor = message.repliedMessageSender ?: "",
+                        repliedText = message.repliedMessageText ?: "",
+                        replyId = message.repliedMessageId ?: "",
+                        replyingText = replyingText,
+                        replyingSender = replyingSender,
+                        presenter = presenter,
+                        messageText = messageText,
+                        isEdited = message.isEdited,
+                        senderId = message.senderId
+                    )
                 }
                 if (messagesState.value is MessagesState.Loading){
                     item {
@@ -388,8 +432,7 @@ fun ChatScreen(
                     replyToId = replyToId,
                     presenter = presenter,
                     textState = messageText,
-                    modifier = Modifier
-                        .padding(bottom = innerPadding.calculateBottomPadding()),
+
                     replyingText = replyingText,
                     replyingSender = replyingSender,
                     onSend = {
@@ -439,7 +482,7 @@ fun ChatScreen(
 
 @Composable
 fun MessageInput(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     presenter: ChatScreenPresenter,
     textState: MutableState<String>,
     replyingSender: MutableState<String>,
@@ -591,11 +634,14 @@ fun MessageInput(
             Icon(
                 modifier = Modifier
                     .background(
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = if (textState.value.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onPrimaryContainer,
                         shape = CircleShape
                     )
                     .clip(CircleShape)
-                    .clickable {
+                    .clickable(
+                        enabled = textState.value.isNotBlank()
+                    ) {
+
                         if (replyingSender.value.isBlank() && replyToId.value.isNotBlank()) {
                             presenter.updateMessage(textState.value)
 
@@ -609,6 +655,7 @@ fun MessageInput(
                     }
                     .padding(14.dp),
                 painter = painterResource(R.drawable.send_message),
+                tint = if (textState.value.isNotBlank()) White else MaterialTheme.colorScheme.onBackground,
                 contentDescription = "send_button"
             )
 
@@ -620,6 +667,7 @@ fun MessageInput(
 @Composable
 fun MessageItem(
     modifier: Modifier = Modifier,
+    profileState: State<ProfileState?>,
     images: List<String> = emptyList(),
     messageId: String,
     presenter: ChatScreenPresenter,
@@ -637,7 +685,8 @@ fun MessageItem(
     menuItemsList: List<MenuItem>,
     replyingSender: MutableState<String>,
     replyingText: MutableState<String>,
-    messageText: MutableState<String>
+    messageText: MutableState<String>,
+    senderId: String
 ) {
 
 
@@ -758,13 +807,15 @@ fun MessageItem(
                     modifier = Modifier
                         .padding(2.dp)
                         .defaultMinSize(minHeight = 40.dp, minWidth = 50.dp),
-                    horizontalAlignment = if (isSelfMessage) Alignment.End else Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(6.dp, Alignment.Top)
+                    horizontalAlignment = Alignment.Start,
+                    verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.Top)
                 ) {
 
 
                     if (replyId.isNotBlank()){
                         RepliedMessageItem(
+                            Modifier
+                                .padding(top = 14.dp, start = 14.dp, end = 14.dp),
                             repliedAuthor,
                             repliedText,
                             isSelfMessage
@@ -774,10 +825,10 @@ fun MessageItem(
                     if (!isSelfMessage){
                         Text(
                             modifier = Modifier
-                                .padding(start = 14.dp, end = 14.dp, top = 14.dp)
+                                .padding(start = 14.dp, end = 14.dp, top = if (replyId.isNotBlank()) 6.dp else 14.dp)
                                 .align(Alignment.Start),
                             text = sendMessageAuthorName,
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp, lineHeight = 12.sp),
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp, lineHeight = 11.sp),
                             color = MaterialTheme.colorScheme.onBackground
                         )
                     }
@@ -806,7 +857,7 @@ fun MessageItem(
                             modifier = Modifier
                                 .padding(start = 14.dp, end = 14.dp, bottom = 14.dp, top = if (isSelfMessage) 14.dp else 0.dp),
                             text = sendMessageText,
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.labelMedium.copy(fontSize = 15.sp, lineHeight = 20.sp),
                             color = if (isSelfMessage) White else MaterialTheme.colorScheme.primary
                         )
                     }
@@ -829,7 +880,7 @@ fun MessageItem(
             containerColor = Color(0xFFB1B1B1)
         ) {
             menuItemsList.forEach{
-                if (isSelfMessage || it.forOthers){
+                if (isSelfMessage || it.forOthers || it.forAdmin && profileState.value?.data?.isAdmin == true){
                     DropdownMenuItem(
                         text = {
                             Text(
@@ -863,6 +914,10 @@ fun MessageItem(
                             if (it.title == "Удалить"){
                                 presenter.deleteMessage(messageId)
                             }
+
+                            if (it.title == "Забанить"){
+                                presenter.banUser(senderId)
+                            }
                             isContextMenuVisible = false
                         }
                     )
@@ -879,11 +934,15 @@ fun MessageItem(
 
 @Composable
 fun RepliedMessageItem(
+    modifier: Modifier = Modifier,
     senderName: String,
     text: String,
     isSelfMessage: Boolean
 ) {
     Card(
+        modifier = modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(6.dp),
         colors = CardDefaults.cardColors(
             containerColor = if(isSelfMessage) White.copy(alpha = 0.17f) else White.copy(alpha = 0.6f)
         )
@@ -897,13 +956,13 @@ fun RepliedMessageItem(
         ) {
             Text(
                 text = senderName,
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, lineHeight = 10.sp),
                 color = if (isSelfMessage) White.copy(alpha = 0.6f) else MaterialTheme.colorScheme.onBackground
             )
 
             Text(
                 text = if(text.length > 23) text.take(23) + "..." else text,
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 12.sp, lineHeight = 12.sp),
                 color = if (isSelfMessage) White else MaterialTheme.colorScheme.primary
             )
         }
@@ -915,6 +974,8 @@ fun RepliedMessageItem(
 private fun RepliedItemPreview() {
     MilitaryChatProjectTheme {
         RepliedMessageItem(
+            Modifier
+                .padding(14.dp),
             "@dmitry",
             "Всем привет я классный парень!",
             false
@@ -1056,6 +1117,10 @@ private fun ChatScreenPreview() {
 
         }
 
+        override fun banUser(userId: String) {
+
+        }
+
         override fun navigateUp() {
 
         }
@@ -1077,6 +1142,14 @@ private fun ChatScreenPreview() {
         }
 
         override fun deleteMessage(messageId: String) {
+
+        }
+
+        override fun listenToSocket() {
+
+        }
+
+        override fun close() {
 
         }
 

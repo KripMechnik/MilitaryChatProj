@@ -16,7 +16,18 @@ class GetListOfMessagesUnregisteredUseCase @Inject constructor(
         emit(Resource.Loading())
         val response = messageRepository.getListOfMessagesUnregistered(messageId)
         if (response is ApiResponse.Success)
-            emit(Resource.Success(data = response.data!!.map { it.toMessageEntity() }))
+            response.data?.let { data ->
+                val resList = data.map { it.toMessageEntity() }
+                if (resList.isNotEmpty()){
+                    for (i in 1..< resList.size){
+                        if (resList[i].senderId != resList[i - 1].senderId){
+                            resList[i - 1].isLastInRow = true
+                        }
+                    }
+                    resList[resList.size - 1].isLastInRow = true
+                }
+                emit(Resource.Success(data = resList))
+            } ?: emit(Resource.Success(data = emptyList()))
         else
             emit(Resource.Error(message = response.errorMessage ?: "Unknown error", code = response.errorCode))
     }

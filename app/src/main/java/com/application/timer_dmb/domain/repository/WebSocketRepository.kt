@@ -8,6 +8,6 @@ interface WebSocketRepository {
 
     fun listen(authorized: Boolean) : Flow<Resource<String>>
 
-    suspend fun close()
+    suspend fun close(): Boolean
 
 }

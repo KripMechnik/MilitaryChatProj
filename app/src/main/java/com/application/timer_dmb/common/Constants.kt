@@ -1,8 +1,10 @@
 package com.application.timer_dmb.common
 
+import com.application.timer_dmb.BuildConfig
+
 object Constants {
-    const val BASE_HOST = "93.183.82.224:3000"
-    const val BASE_WEBSOCKET_HOST = "ws://93.183.82.224:4000"
+    const val BASE_HOST = "${BuildConfig.BASE_URL}:3000"
+    const val BASE_WEBSOCKET_HOST = "ws://${BuildConfig.BASE_URL}:4000"
 
     const val HOME_SCREEN_ROUTE = "home"
     const val REGISTRATION_SCREEN_ROUTE = "registration"

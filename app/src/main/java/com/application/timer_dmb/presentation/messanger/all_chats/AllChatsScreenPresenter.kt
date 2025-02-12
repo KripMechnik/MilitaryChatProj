@@ -11,5 +11,9 @@ interface AllChatsScreenPresenter {
 
     fun getChats()
 
+    fun listenToSocket()
+
+    fun close()
+
     fun onNavigating()
 }

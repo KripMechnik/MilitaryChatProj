@@ -36,6 +36,8 @@ interface ChatScreenPresenter {
 
     fun setBitmap(bitmap: ImageBitmap)
 
+    fun banUser(userId: String)
+
     fun navigateUp()
 
     fun getMessages()
@@ -47,6 +49,10 @@ interface ChatScreenPresenter {
     fun updateMessage(newText: String)
 
     fun deleteMessage(messageId: String)
+
+    fun listenToSocket()
+
+    fun close()
 
     fun sendTimer()
 

@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -321,13 +322,29 @@ fun Registered(
             ) {
 
                 if (state is MenuState.Error){
-                    Text(
+                    Row(
                         modifier = Modifier
                             .padding(16.dp),
-                        text = (state as MenuState.Error).code.toString() + ": не удалось войти в аккаунт" ,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .weight(1f),
+                            text = (state as MenuState.Error).code.toString() + ": не удалось войти в аккаунт" ,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Icon(
+                            modifier = Modifier
+                                .clickable {
+                                    presenter.logoutWhenNoConnection()
+                                },
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = "exit_acc",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+
                 } else {
                     Row (
                         modifier = Modifier
@@ -508,9 +525,13 @@ private fun RegisteredPreview() {
 
     val presenter = object : MenuScreenPresenter{
         override val state: StateFlow<MenuState>
-            get() = MutableStateFlow(MenuState.Success(SelfUserEntity("", "", "@Example_login", "@Example_login", "")))
+            get() = MutableStateFlow(MenuState.Success(SelfUserEntity("", "", "@Example_login", "@Example_login", "", false)))
         override val registered: StateFlow<Boolean>
             get() = MutableStateFlow(true)
+
+        override fun logoutWhenNoConnection() {
+
+        }
 
         override fun navigateToRegister() {
 

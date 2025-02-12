@@ -8,6 +8,7 @@ import com.application.timer_dmb.domain.entity.receive.ChatEntity
 import com.application.timer_dmb.domain.entity.receive.NewMessageWebSocketEntity
 import com.application.timer_dmb.domain.usecases.authorization.IsAuthorizedUseCase
 import com.application.timer_dmb.domain.usecases.messages.GetGlobalChatUseCase
+import com.application.timer_dmb.domain.usecases.web_socket.CloseSessionUseCase
 import com.application.timer_dmb.domain.usecases.web_socket.ListenToSocketUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.cancel
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
@@ -23,6 +25,7 @@ class AllChatsViewModel @Inject constructor(
     private val getGlobalChatUseCase: GetGlobalChatUseCase,
     private val listenToSocketUseCase: ListenToSocketUseCase,
     private val isAuthorizedUseCase: IsAuthorizedUseCase,
+    private val closeSessionUseCase: CloseSessionUseCase,
     private val json: Json,
 ) : ViewModel() {
 
@@ -34,7 +37,6 @@ class AllChatsViewModel @Inject constructor(
 
     init {
         getChats()
-        listenToSocket()
     }
 
     fun getChats(){
@@ -56,7 +58,7 @@ class AllChatsViewModel @Inject constructor(
     }
 
 
-    private fun listenToSocket(){
+    fun listenToSocket(){
         if (isAuthorizedUseCase()){
             listenToSocketUseCase(true).onEach{ result ->
                 Log.i("web_socket_allChats", result.data ?: "Empty")
@@ -101,6 +103,12 @@ class AllChatsViewModel @Inject constructor(
     fun onNavigating(){
         viewModelScope.cancel()
         _clearedState.value = true
+    }
+
+    fun close(){
+        viewModelScope.launch {
+            closeSessionUseCase()
+        }
     }
 }
 

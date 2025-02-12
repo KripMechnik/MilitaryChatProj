@@ -32,10 +32,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.work.BackoffPolicy
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.application.timer_dmb.common.Constants.CALENDAR_SCREEN_ROUTE
 import com.application.timer_dmb.common.Constants.HOME_SCREEN_ROUTE
 import com.application.timer_dmb.common.Constants.MENU_SCREEN_ROUTE
@@ -61,9 +66,13 @@ import com.application.timer_dmb.presentation.share_picture.view.sharePicture
 import com.application.timer_dmb.presentation.splash.SplashScreenState
 import com.application.timer_dmb.presentation.splash.SplashScreenViewModel
 import com.application.timer_dmb.presentation.timer_settings.view.timerSettings
+import com.application.timer_dmb.presentation.widget.DmbWidget
+import com.application.timer_dmb.presentation.widget.TimeCounterWorker
 import com.application.timer_dmb.ui.theme.MilitaryChatProjectTheme
 import com.application.timer_dmb.ui.theme.Transparent
 import dagger.hilt.android.AndroidEntryPoint
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 data class BottomNavigationItem(
     val title: String,
@@ -78,7 +87,6 @@ class MainActivity : ComponentActivity() {
 
     @ExperimentalMaterial3Api
     override fun onCreate(savedInstanceState: Bundle?) {
-
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
                 android.graphics.Color.TRANSPARENT,
@@ -99,8 +107,6 @@ class MainActivity : ComponentActivity() {
                 viewModel.state.value == SplashScreenState.Idle
             }
         }
-
-
 
         setContent {
             val navController = rememberNavController()

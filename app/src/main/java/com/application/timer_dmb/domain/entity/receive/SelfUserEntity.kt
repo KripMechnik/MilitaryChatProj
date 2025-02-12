@@ -5,5 +5,6 @@ data class SelfUserEntity(
     val id: String,
     val login: String,
     val nickname: String,
-    val userType: String
+    val userType: String,
+    val isAdmin: Boolean
 )

@@ -117,7 +117,7 @@ class SharePictureScreenViewModel @Inject constructor(
         val file = File(context.cacheDir, "send.png")
         val uri = FileProvider.getUriForFile(
             context,
-            "com.application.militarychatproject.provider",
+            "com.application.timer_dmb.provider",
             file)
 
 
