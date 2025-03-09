@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("dagger.hilt.android.plugin")
     id("com.google.devtools.ksp")
+    id("com.google.gms.google-services")
     kotlin("plugin.serialization") version "1.9.0"
 }
 
@@ -104,14 +105,14 @@ dependencies {
     implementation(libs.ktor.ktor.client.auth)
     implementation(libs.ktor.client.websockets)
 
-    //splash
+    //Splash
     implementation(libs.androidx.core.splashscreen)
 
     //AsyncImage
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 
-    //blur
+    //Blur
     implementation(libs.haze.jetpack.compose)
 
     //Calendar
@@ -120,7 +121,7 @@ dependencies {
     //SwipeRefresh
     implementation("com.google.accompanist:accompanist-swiperefresh:0.27.0")
 
-    //wheelDatePicker
+    //WheelDatePicker
     implementation ("com.github.ozcanalasalvar.picker:datepicker:2.0.7")
     implementation ("com.github.ozcanalasalvar.picker:wheelview:2.0.7")
 
@@ -143,5 +144,10 @@ dependencies {
 
     //Workers
     implementation(libs.androidx.work.runtime.ktx)
+
+    //Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.10.0"))
+    implementation("com.google.firebase:firebase-messaging")
+
 
 }

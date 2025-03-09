@@ -1,6 +1,14 @@
 package com.application.timer_dmb
 
+import android.Manifest
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.BackoffPolicy
 import androidx.work.Configuration
@@ -22,6 +30,7 @@ class App : Application(), Configuration.Provider{
 
     override fun onCreate() {
         super.onCreate()
+        createNotificationChannel("1")
         val workRequest = PeriodicWorkRequestBuilder<TimeCounterWorker>(
             repeatInterval = 15,
             repeatIntervalTimeUnit = TimeUnit.MINUTES,
@@ -46,5 +55,18 @@ class App : Application(), Configuration.Provider{
         return Configuration.Builder()
             .setWorkerFactory(workerFactory)
             .build()
+    }
+
+    private fun createNotificationChannel(channelId: String) {
+        val channel = NotificationChannel(
+            channelId,
+            "Custom Notifications",
+            NotificationManager.IMPORTANCE_HIGH
+        ).apply {
+            description = "Channel for custom notifications"
+        }
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 }

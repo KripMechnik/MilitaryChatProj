@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "146569849067",
+    "project_id": "dmb-timer-ecd3c",
+    "storage_bucket": "dmb-timer-ecd3c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:146569849067:android:ae6af78af64686dc1db6ae",
+        "android_client_info": {
+          "package_name": "com.application.timer_dmb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBATnPVo5eqNXGO2wRQ3dkNpdszz9yB80"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

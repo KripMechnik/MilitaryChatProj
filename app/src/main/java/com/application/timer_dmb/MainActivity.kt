@@ -1,6 +1,10 @@
 package com.application.timer_dmb
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -21,6 +25,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -31,6 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -70,7 +77,10 @@ import com.application.timer_dmb.presentation.widget.DmbWidget
 import com.application.timer_dmb.presentation.widget.TimeCounterWorker
 import com.application.timer_dmb.ui.theme.MilitaryChatProjectTheme
 import com.application.timer_dmb.ui.theme.Transparent
+import com.google.firebase.Firebase
+import com.google.firebase.messaging.messaging
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.tasks.await
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
@@ -87,6 +97,8 @@ class MainActivity : ComponentActivity() {
 
     @ExperimentalMaterial3Api
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        requestNotificationPermission()
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
                 android.graphics.Color.TRANSPARENT,
@@ -102,6 +114,8 @@ class MainActivity : ComponentActivity() {
 
         actionBar?.hide()
 
+
+
         installSplashScreen().apply {
             setKeepOnScreenCondition {
                 viewModel.state.value == SplashScreenState.Idle
@@ -109,6 +123,9 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            LaunchedEffect(true) {
+                Log.i("FCMToken", Firebase.messaging.token.await())
+            }
             val navController = rememberNavController()
             val route by viewModel.route.collectAsState()
             val items = remember {
@@ -213,6 +230,19 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            val hasPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+            if (!hasPermission){
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    0
+                )
             }
         }
     }
