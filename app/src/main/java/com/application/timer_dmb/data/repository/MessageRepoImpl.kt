@@ -46,4 +46,8 @@ class MessageRepoImpl @Inject constructor (
     override suspend fun getListOfMessagesUnregistered(messageId: String): ApiResponse<List<MessageDTO>> {
         return messageRequests.getListOfMessagesUnregistered(messageId)
     }
+
+    override suspend fun sendFCMToken(token: String): ApiResponse<Unit> {
+        return messageRequests.sendFCMToken(token)
+    }
 }

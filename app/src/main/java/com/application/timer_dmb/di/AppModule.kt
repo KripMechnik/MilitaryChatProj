@@ -65,6 +65,7 @@ import com.application.timer_dmb.domain.usecases.messages.GetGlobalChatUseCase
 import com.application.timer_dmb.domain.usecases.messages.GetListOfMessagesUnregisteredUseCase
 import com.application.timer_dmb.domain.usecases.messages.GetListOfMessagesUseCase
 import com.application.timer_dmb.domain.usecases.messages.ReadMessageUseCase
+import com.application.timer_dmb.domain.usecases.messages.SendFCMTokenUseCase
 import com.application.timer_dmb.domain.usecases.messages.SendMessageUseCase
 import com.application.timer_dmb.domain.usecases.messages.UpdateMessageUseCase
 import com.application.timer_dmb.domain.usecases.timer.GetTimerDataUseCase
@@ -450,6 +451,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideLogoutWhenNoConnectionUseCase(userData: UserData, authRequest: AuthRequest) = LogoutWhenNoConnectionUseCase(userData, authRequest)
+
+    @Provides
+    @Singleton
+    fun provideSendFCMTokenUseCase(messageRepository: MessageRepository) = SendFCMTokenUseCase(messageRepository)
 
     //Database
     @Provides

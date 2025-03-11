@@ -5,6 +5,7 @@ import com.application.timer_dmb.data.remote.dto.MessageDTO
 import com.application.timer_dmb.data.remote.network.ApiResponse
 import com.application.timer_dmb.data.remote.network.AuthRequest
 import com.application.timer_dmb.data.remote.network.BaseRequest
+import com.application.timer_dmb.domain.entity.send.FCMTokenEntity
 import com.application.timer_dmb.domain.entity.send.UpdatedMessageEntity
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
@@ -39,6 +40,15 @@ class MessageRequests @Inject constructor(
         return authRequest(
             path = basePath + "global-chat",
             method = HttpMethod.Get
+        )
+    }
+
+    //token -> yes
+    suspend fun sendFCMToken(token: String) : ApiResponse<Unit>{
+        return authRequest(
+            path = "/push-notifications/add-device",
+            method = HttpMethod.Post,
+            body = FCMTokenEntity(deviceToken = token)
         )
     }
 

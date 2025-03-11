@@ -25,4 +25,6 @@ interface MessageRepository {
 
     suspend fun getListOfMessagesUnregistered(messageId: String) : ApiResponse<List<MessageDTO>>
 
+    suspend fun sendFCMToken(token: String) : ApiResponse<Unit>
+
 }
