@@ -17,7 +17,10 @@ import com.application.timer_dmb.domain.usecases.authorization.SendOtpUseCase
 import com.application.timer_dmb.domain.usecases.events.CreateEventUseCase
 import com.application.timer_dmb.domain.usecases.events.DeleteAllEventsFromDatabaseUseCase
 import com.application.timer_dmb.domain.usecases.events.GetAllEventsFromDatabaseUseCase
+import com.application.timer_dmb.domain.usecases.messages.SendFCMTokenUseCase
 import com.application.timer_dmb.domain.usecases.timer.UpdateTimerUseCase
+import com.google.firebase.Firebase
+import com.google.firebase.messaging.messaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +29,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
@@ -41,6 +45,7 @@ class OtpViewModel @Inject constructor(
     private val createEventUseCase: CreateEventUseCase,
     private val deleteAllEventsFromDatabaseUseCase: DeleteAllEventsFromDatabaseUseCase,
     private val updateTimerUseCase: UpdateTimerUseCase,
+    private val sendFCMTokenUseCase: SendFCMTokenUseCase,
     savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
@@ -189,6 +194,16 @@ class OtpViewModel @Inject constructor(
                                         }
                                     }
 
+                                    val sendingFCMToken = launch {
+                                        sendFCMTokenUseCase(Firebase.messaging.token.await()).collect{ result ->
+                                            when(result){
+                                                is Resource.Error -> Log.e("FCMError", result.code.toString() + " " + result.message)
+                                                is Resource.Loading -> {}
+                                                is Resource.Success -> {}
+                                            }
+                                        }
+1                                    }
+
                                     events.forEach {
                                         launch { val newEventEntity = NewEventEntity(title = it.title, timeMillis = it.timeMillis.toLong())
                                             Log.i("event_entity", newEventEntity.toString())
@@ -206,6 +221,7 @@ class OtpViewModel @Inject constructor(
 
                                     updatingTimer.join()
                                     clearingDatabase.join()
+                                    sendingFCMToken.join()
                                     _sendCodeState.value = SendCodeState.Success(data = result.data)
                                 } else {
                                     _sendCodeState.value = SendCodeState.Error(message = "Didn't save token", code = null)

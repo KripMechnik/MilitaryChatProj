@@ -8,17 +8,22 @@ import com.application.timer_dmb.domain.entity.receive.TokenEntity
 import com.application.timer_dmb.domain.entity.send.SignedInUserEntity
 import com.application.timer_dmb.domain.usecases.authorization.SaveTokenUseCase
 import com.application.timer_dmb.domain.usecases.authorization.SignInUseCase
+import com.application.timer_dmb.domain.usecases.messages.SendFCMTokenUseCase
+import com.google.firebase.Firebase
+import com.google.firebase.messaging.messaging
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginScreenViewModel @Inject constructor(
     private val signInUseCase: SignInUseCase,
-    private val saveTokenUseCase: SaveTokenUseCase
+    private val saveTokenUseCase: SaveTokenUseCase,
+    private val sendFCMTokenUseCase: SendFCMTokenUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<LoginState?>(null)
@@ -44,6 +49,13 @@ class LoginScreenViewModel @Inject constructor(
                         }
                     if (savingToken){
                         Log.i("success_saving", "Success")
+                        sendFCMTokenUseCase(Firebase.messaging.token.await()).onEach{ result ->
+                            when(result){
+                                is Resource.Error -> Log.e("FCMError", result.code.toString() + " " + result.message)
+                                is Resource.Loading -> {}
+                                is Resource.Success -> Log.i("FCMSuccess", "Success")
+                            }
+                        }.launchIn(viewModelScope)
                         _state.value = LoginState.Success(response.data)
                     } else {
                         _state.value = LoginState.Error(message = "Didn't save token", code = null)

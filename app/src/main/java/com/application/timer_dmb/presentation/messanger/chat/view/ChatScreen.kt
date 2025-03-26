@@ -1,8 +1,15 @@
 package com.application.timer_dmb.presentation.messanger.chat.view
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.util.Log
+import android.view.Menu
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -27,6 +34,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -81,6 +89,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -111,6 +120,7 @@ import dev.shreyaspatil.capturable.capturable
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
@@ -134,6 +144,8 @@ fun ChatScreen(
     val scope = rememberCoroutineScope()
 
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    val context = LocalContext.current
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -192,6 +204,10 @@ fun ChatScreen(
             icon = rememberVectorPainter(Icons.Default.Close),
             forAdmin = true,
             forOthers = false
+        ),
+        MenuItem(
+            title = "Скопировать",
+            icon = painterResource(R.drawable.copy_icon)
         )
     )
 
@@ -236,7 +252,6 @@ fun ChatScreen(
             }
 
     }
-
 
     if (listState.isNotEmpty()){
         LaunchedEffect(listState[0]) {
@@ -372,103 +387,119 @@ fun ChatScreen(
 
         }
     ){ innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .imePadding()
-                .padding(top = innerPadding.calculateTopPadding()),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(top = innerPadding.calculateTopPadding())
         ) {
-            LazyColumn (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                reverseLayout = true,
-                state = chatListState
-            ){
-
-
-
-                items(listState, key = { it.messageId }){ message ->
-                    MessageItem(
-                        modifier = Modifier
-                            .padding(top = 16.dp)
-                            .animateItem(),
-                        profileState = profileState,
-                        messageId = message.messageId,
-                        isSelfMessage = message.isSender,
-                        images = message.attachmentLinks,
-                        sendMessageAuthorName = message.senderNickname,
-                        sendMessageText = message.text,
-                        sendMessageTime = message.creationTime,
-                        url = message.senderAvatarLink ?: "",
-                        isRead = message.isRead,
-                        isLastMessagePerRow = message.isLastInRow,
-                        menuItemsList = listOfMenuItems,
-                        repliedAuthor = message.repliedMessageSender ?: "",
-                        repliedText = message.repliedMessageText ?: "",
-                        replyId = message.repliedMessageId ?: "",
-                        replyingText = replyingText,
-                        replyingSender = replyingSender,
-                        presenter = presenter,
-                        messageText = messageText,
-                        isEdited = message.isEdited,
-                        senderId = message.senderId
-                    )
-                }
-                if (messagesState.value is MessagesState.Loading){
-                    item {
-                        CircularProgressIndicator(
-                            modifier = Modifier
-                                .padding(top = 16.dp)
-                        )
-                    }
-                }
-            }
-
-            if (authorized.value){
-                MessageInput(
-                    replyToId = replyToId,
-                    presenter = presenter,
-                    textState = messageText,
-
-                    replyingText = replyingText,
-                    replyingSender = replyingSender,
-                    onSend = {
-                        messageText.value = ""
-                    }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                LazyColumn (
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    reverseLayout = true,
+                    state = chatListState
                 ){
 
-                    showSendImageDialog = true
 
-                }
-            }
 
-            else {
 
-                Column(
-                    modifier = Modifier
-                        .padding(bottom = innerPadding.calculateBottomPadding() + 25.dp, start = 25.dp, end = 25.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                    itemsIndexed(listState, key = {_, message -> message.messageId }){ index, message ->
 
-                    HorizontalDivider(
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
 
-                    ButtonPreset(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = White,
-                        label = stringResource(R.string.to_register)
-                    ) {
-                        presenter.navigateToRegister()
+
+                        MessageItem(
+                            modifier = Modifier
+                                .padding(top = 16.dp)
+                                .animateItem(),
+                            profileState = profileState,
+                            messageId = message.messageId,
+                            isSelfMessage = message.isSender,
+                            images = message.attachmentLinks,
+                            sendMessageAuthorName = message.senderNickname,
+                            sendMessageText = message.text,
+                            sendMessageTime = message.creationTime,
+                            url = message.senderAvatarLink ?: "",
+                            isRead = message.isRead,
+                            isLastMessagePerRow = message.isLastInRow,
+                            menuItemsList = listOfMenuItems,
+                            repliedAuthor = message.repliedMessageSender ?: "",
+                            repliedText = message.repliedMessageText ?: "",
+                            replyId = message.repliedMessageId ?: "",
+                            replyingText = replyingText,
+                            replyingSender = replyingSender,
+                            presenter = presenter,
+                            messageText = messageText,
+                            isEdited = message.isEdited,
+                            senderId = message.senderId,
+                            context = context
+                        )
+
+                        if (index == listState.size - 1 || listState[index].creationDate != listState[index + 1].creationDate)
+                            MessageDivider(
+                                modifier = Modifier
+                                    .animateItem(),
+                                date = message.creationDate
+                            )
+                    }
+                    if (messagesState.value is MessagesState.Loading){
+                        item {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .padding(top = 16.dp)
+                            )
+                        }
                     }
                 }
 
+                if (authorized.value){
+                    MessageInput(
+                        replyToId = replyToId,
+                        presenter = presenter,
+                        textState = messageText,
 
+                        replyingText = replyingText,
+                        replyingSender = replyingSender,
+                        onSend = {
+                            messageText.value = ""
+                        }
+                    ){
+
+                        showSendImageDialog = true
+
+                    }
+                }
+
+                else {
+
+                    Column(
+                        modifier = Modifier
+                            .padding(bottom = innerPadding.calculateBottomPadding() + 25.dp, start = 25.dp, end = 25.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+
+                        ButtonPreset(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = White,
+                            label = stringResource(R.string.to_register)
+                        ) {
+                            presenter.navigateToRegister()
+                        }
+                    }
+
+
+                }
             }
         }
+
 
     }
 
@@ -478,6 +509,36 @@ fun ChatScreen(
 
 }
 
+@Composable
+fun MessageDivider(
+    date: String,
+    modifier: Modifier = Modifier
+) {
+    Row (
+        modifier = modifier
+            .padding(top = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        HorizontalDivider(
+            modifier = Modifier
+                .weight(1f),
+            color = MaterialTheme.colorScheme.onBackground
+        )
+
+        Text(
+            text = date,
+            color = MaterialTheme.colorScheme.onBackground,
+            style = MaterialTheme.typography.labelSmall
+        )
+
+        HorizontalDivider(
+            modifier = Modifier
+                .weight(1f),
+            color = MaterialTheme.colorScheme.onBackground
+        )
+    }
+}
 
 
 @Composable
@@ -667,6 +728,7 @@ fun MessageInput(
 @Composable
 fun MessageItem(
     modifier: Modifier = Modifier,
+    context: Context,
     profileState: State<ProfileState?>,
     images: List<String> = emptyList(),
     messageId: String,
@@ -773,7 +835,7 @@ fun MessageItem(
                 Row (
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(end = 8.dp, bottom = 8.dp, start = 8.dp, top = 40.dp ),
+                        .padding(end = 8.dp, bottom = 8.dp, start = 8.dp, top = 40.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
@@ -825,7 +887,11 @@ fun MessageItem(
                     if (!isSelfMessage){
                         Text(
                             modifier = Modifier
-                                .padding(start = 14.dp, end = 14.dp, top = if (replyId.isNotBlank()) 6.dp else 14.dp)
+                                .padding(
+                                    start = 14.dp,
+                                    end = 14.dp,
+                                    top = if (replyId.isNotBlank()) 6.dp else 14.dp
+                                )
                                 .align(Alignment.Start),
                             text = sendMessageAuthorName,
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp, lineHeight = 11.sp),
@@ -917,6 +983,12 @@ fun MessageItem(
 
                             if (it.title == "Забанить"){
                                 presenter.banUser(senderId)
+                            }
+
+                            if (it.title == "Скопировать"){
+                                val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                val clipData = ClipData.newPlainText("Copied Text", sendMessageText)
+                                clipboardManager.setPrimaryClip(clipData)
                             }
                             isContextMenuVisible = false
                         }
@@ -1013,9 +1085,9 @@ private fun ChatScreenPreview() {
                         ),
 
                         MessageEntity(
-                            messageId = "1",
+                            messageId = "2",
                             chatId = "1",
-                            creationDate = "Октябрь 14",
+                            creationDate = "Октябрь 15",
                             attachmentLinks = emptyList(),
                             creationTime = "07:25",
                             isEdited = false,
@@ -1032,7 +1104,7 @@ private fun ChatScreenPreview() {
                         ),
 
                         MessageEntity(
-                            messageId = "1",
+                            messageId = "3",
                             chatId = "1",
                             creationDate = "Октябрь 14",
                             attachmentLinks = emptyList(),
@@ -1051,7 +1123,7 @@ private fun ChatScreenPreview() {
                         ),
 
                         MessageEntity(
-                            messageId = "1",
+                            messageId = "4",
                             chatId = "1",
                             creationDate = "Октябрь 14",
                             attachmentLinks = emptyList(),
@@ -1070,7 +1142,7 @@ private fun ChatScreenPreview() {
                         ),
 
                         MessageEntity(
-                            messageId = "1",
+                            messageId = "5",
                             chatId = "1",
                             creationDate = "Октябрь 14",
                             attachmentLinks = emptyList(),

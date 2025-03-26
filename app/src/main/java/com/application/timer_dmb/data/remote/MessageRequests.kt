@@ -48,7 +48,7 @@ class MessageRequests @Inject constructor(
         return authRequest(
             path = "/push-notifications/add-device",
             method = HttpMethod.Post,
-            body = FCMTokenEntity(deviceToken = token)
+            body = FCMTokenEntity(deviceToken = token, platform = "ANDROID")
         )
     }
 

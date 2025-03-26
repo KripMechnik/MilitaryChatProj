@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FCMTokenEntity(
-    val platform: String = "ANDROID",
+    val platform: String,
     val deviceToken: String
 )

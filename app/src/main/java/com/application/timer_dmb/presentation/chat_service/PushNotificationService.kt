@@ -1,6 +1,11 @@
 package com.application.timer_dmb.presentation.chat_service
 
+import android.annotation.SuppressLint
+import android.app.NotificationManager
+import android.content.Context
 import android.util.Log
+import android.widget.RemoteViews
+import androidx.core.app.NotificationCompat
 import com.application.timer_dmb.common.Resource
 import com.application.timer_dmb.domain.usecases.authorization.IsAuthorizedUseCase
 import com.application.timer_dmb.domain.usecases.messages.SendFCMTokenUseCase
@@ -19,10 +24,10 @@ import javax.inject.Inject
 class PushNotificationService : FirebaseMessagingService() {
 
     @Inject
-    private lateinit var sendFCMTokenUseCase: SendFCMTokenUseCase
+    lateinit var sendFCMTokenUseCase: SendFCMTokenUseCase
 
     @Inject
-    private lateinit var isAuthorizedUseCase: IsAuthorizedUseCase
+    lateinit var isAuthorizedUseCase: IsAuthorizedUseCase
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -41,15 +46,39 @@ class PushNotificationService : FirebaseMessagingService() {
 
 
     override fun onMessageReceived(message: RemoteMessage) {
-        val title = message.data["title"] ?: "title"
-        val content = message.data["content"] ?: "content"
-        val imgUrl = message.data["url"] ?: ""
-
-        Log.i("data_notification", "$title $content $imgUrl")
+        super.onMessageReceived(message)
+//        val title = message.data["title"] ?: "title"
+//        val content = message.data["content"] ?: "content"
+//        val imgUrl = message.data["url"] ?: ""
+//
+//        Log.i("data_notification", "$title $content $imgUrl")
     }
 
     override fun onDestroy() {
         scope.cancel()
         super.onDestroy()
+    }
+
+    @SuppressLint("ServiceCast")
+    private fun showCustomNotification(title: String, body: String) {
+        // Создаем RemoteViews для кастомного макета
+//        val notificationLayout = RemoteViews(packageName, R.layout.custom_notification)
+//        notificationLayout.setTextViewText(R.id.notification_title, title)
+//        notificationLayout.setTextViewText(R.id.notification_body, body)
+
+        // Создаем канал уведомлений (для Android 8.0 и выше)
+        val channelId = "custom_notification_channel"
+
+        // Создаем уведомление
+        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+            //.setSmallIcon(R.drawable.ic_notification)
+            //.setCustomContentView(notificationLayout)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
+
+        // Показываем уведомление
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notify(1, notificationBuilder.build())
     }
 }
